@@ -1,6 +1,6 @@
 [
   {
-    "id": "hard-world-session",
+    "id": "world-session",
     "initial_cwd_rel": "apps/api/src/auth",
     "prompts": [
       {

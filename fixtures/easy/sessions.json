@@ -1,6 +1,6 @@
 [
   {
-    "id": "easy-world-session",
+    "id": "world-session",
     "initial_cwd_rel": "apps/api/src/auth",
     "prompts": [
       {
@@ -67,6 +67,49 @@
           "verifyEventSeal",
           "event_receipts",
           "billing.event.accepted"
+        ],
+        "response_language": "tr"
+      },
+      {
+        "id": "code-verification",
+        "text": "Route registration boot akışında hangi fonksiyondan geçiyor ve ready durumundan önce mi sonra mı çağrılıyor? Yalnız gerekli kodu okuyarak doğrula.",
+        "cwd_rel": "apps/api/src",
+        "expected_facts": [],
+        "expected_source_facts": [
+          "registerRoutes",
+          "before ready"
+        ],
+        "required_actions": [
+          "apps/api/src/server.ts",
+          "apps/api/src/routes.ts"
+        ],
+        "response_language": "tr"
+      },
+      {
+        "id": "discovery",
+        "text": "Log sampling kararının proje içi adını ve bu ayarın hangi ekip sınırında tutulduğunu bul. Geniş repo taraması yapma.",
+        "cwd_rel": "packages/observability",
+        "expected_facts": [
+          "Northglass",
+          "platform observability"
+        ],
+        "response_language": "tr"
+      },
+      {
+        "id": "unknown",
+        "text": "Bu projede veritabanı failover tatbikatının gizli kod adı nedir? Kanıt yoksa açıkça bilmediğini söyle.",
+        "cwd_rel": "apps/api/src",
+        "expected_facts": [],
+        "expects_abstention": true,
+        "response_language": "tr"
+      },
+      {
+        "id": "auth-return",
+        "text": "İlk session konusuna dön: mimari adı neydi ve hangi başarısız deneyden sonra kayda geçmişti?",
+        "cwd_rel": "apps/api/src/auth",
+        "expected_facts": [
+          "Cedarline",
+          "rotating-cookie"
         ],
         "response_language": "tr"
       }

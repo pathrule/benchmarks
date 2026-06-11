@@ -245,7 +245,7 @@ function unrelatedItem(index: number, tier: TierId): CanonicalKnowledgeItem {
   };
 }
 
-function promptsForTier(tier: TierId): PromptSpec[] {
+function benchmarkPrompts(): PromptSpec[] {
   const common: PromptSpec[] = [
     {
       id: "auth-recall",
@@ -298,7 +298,6 @@ function promptsForTier(tier: TierId): PromptSpec[] {
       response_language: "tr",
     },
   ];
-  if (tier === "easy") return common;
   return [
     ...common,
     {
@@ -346,30 +345,17 @@ function definition(tier: TierId): FixtureDefinition {
   for (let index = 0; knowledge.length < targets[tier]; index += 1) {
     knowledge.push(unrelatedItem(index, tier));
   }
-  const prompts = promptsForTier(tier);
+  const prompts = benchmarkPrompts();
   const session: SessionSpec = {
-    id: `${tier}-world-session`,
+    id: "world-session",
     initial_cwd_rel: prompts[0]!.cwd_rel ?? ".",
     prompts,
   };
   const files = { ...CODE_FILES };
-  if (tier === "easy") {
-    for (const path of Object.keys(files)) {
-      if (
-        path.includes("observability") ||
-        path.includes("ui") ||
-        path.includes("routes")
-      ) {
-        delete files[path];
-      }
-    }
-  }
-  if (tier === "hard") {
-    for (let index = 0; index < 36; index += 1) {
-      const area = AREAS[index % AREAS.length]!;
-      files[`packages/${area}/src/module-${index + 1}.ts`] =
-        `export const module${index + 1} = { area: ${JSON.stringify(area)}, enabled: true };\n`;
-    }
+  for (let index = 0; index < 36; index += 1) {
+    const area = AREAS[index % AREAS.length]!;
+    files[`packages/${area}/src/module-${index + 1}.ts`] =
+      `export const module${index + 1} = { area: ${JSON.stringify(area)}, enabled: true };\n`;
   }
   return { tier, files, knowledge, sessions: [session] };
 }

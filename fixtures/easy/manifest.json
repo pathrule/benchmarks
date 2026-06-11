@@ -13,8 +13,8 @@
     "hard-negative": 4,
     "unrelated": 5
   },
-  "repository_files": 9,
-  "directory_count": 6,
-  "prompt_count": 6,
+  "repository_files": 48,
+  "directory_count": 32,
+  "prompt_count": 10,
   "contamination_passed": true
 }

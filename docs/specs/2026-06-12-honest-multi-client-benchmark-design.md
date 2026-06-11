@@ -65,16 +65,21 @@ separate so implementation details cannot be selected after seeing results.
 Headline rankings use only the three headline variants. Ablations explain
 causality and cannot replace an unfavorable headline result.
 
-## Complexity Tiers
+## Knowledge-Scale Tiers
 
-All repositories are deterministic synthetic TypeScript monorepos. Repository
-shape, knowledge volume, path depth, and distractor density increase together.
+Every tier uses the same deterministic synthetic TypeScript monorepo, byte for
+byte. Repository shape, code volume, path depth, prompt sequence, expected facts,
+and relevant knowledge remain fixed. Only accumulated knowledge volume and
+distractor density increase.
 
-| Tier | Repository shape | Knowledge target | Relevant set | Distractors |
+| Tier | Canonical repository | Knowledge target | Relevant set | Distractors |
 | --- | --- | ---: | ---: | ---: |
-| easy | small app, 2-3 feature directories | 12-18 items | 5-7 | at least 50% |
-| medium | app plus shared packages, 3-5 levels | 45-65 items | 10-14 | at least 65% |
-| hard | multi-app monorepo, deep packages and cross-cutting areas | 140-200 items | 18-28 | at least 75% |
+| easy | same multi-app monorepo | 12-18 items | fixed | at least 50% |
+| medium | same multi-app monorepo | 45-65 items | fixed | at least 65% |
+| hard | same multi-app monorepo | 140-200 items | fixed | at least 75% |
+
+This isolates the scaling variable: how delivery behaves as team knowledge
+accumulates. It does not conflate knowledge growth with a larger codebase.
 
 Each canonical item has:
 
@@ -109,8 +114,8 @@ Required prompt shapes:
 9. Unknown-fact question requiring explicit abstention.
 10. Return to an earlier topic to test duplicate delivery and retained context.
 
-Easy may use six prompts by combining compatible shapes. Medium and hard use all
-ten. Prompt text is equivalent across clients and identifies no variant.
+All tiers use the same ten prompts in the same order. Prompt text is equivalent
+across clients and identifies no variant.
 
 ## Client Isolation
 
@@ -300,8 +305,9 @@ scripts/
 1. Scaffold TypeScript package, schemas, CLI, and append-only run store.
 2. Implement source checkout provenance, direct build entrypoint resolution, and
    runtime artifact validation.
-3. Implement deterministic canonical knowledge and repository generators for all
-   tiers, including contamination and parity audits.
+3. Implement one deterministic canonical repository and three cumulative
+   knowledge overlays, including contamination, repository-identity, and parity
+   audits.
 4. Implement monolithic and production Pathrule materializers.
 5. Implement isolated Claude and Codex adapters with real usage parsing and
    session continuation.
@@ -323,7 +329,8 @@ scripts/
   artifact.
 - Claude and Codex receive equivalent knowledge and prompt sequences through
   their native instruction formats.
-- Easy, medium, and hard contain increasing relevant and irrelevant knowledge.
+- Easy, medium, and hard use byte-identical repositories and prompt sessions,
+  with increasing irrelevant and hard-negative knowledge.
 - Multi-prompt sessions verify repeat, route change, path change, and return
   behavior.
 - Interrupted runs resume without repeating completed matching cells.
