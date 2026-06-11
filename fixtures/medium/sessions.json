@@ -1,0 +1,118 @@
+[
+  {
+    "id": "medium-world-session",
+    "initial_cwd_rel": "apps/api/src/auth",
+    "prompts": [
+      {
+        "id": "auth-recall",
+        "text": "Bu projede tarayıcı session mimarisinin arkasındaki proje içi kararı ve karar kaydını açıkla. Tahmin etme.",
+        "cwd_rel": "apps/api/src/auth",
+        "expected_facts": [
+          "Cedarline",
+          "AUTH-271"
+        ],
+        "response_language": "tr"
+      },
+      {
+        "id": "auth-followup",
+        "text": "Aynı session ailesi ele geçirilmiş sayılırsa içeride hangi duruma alınır ve recovery sırası nasıl olmalıdır?",
+        "cwd_rel": "apps/api/src/auth",
+        "expected_facts": [
+          "Sundial quarantine",
+          "revoking the family"
+        ],
+        "response_language": "tr"
+      },
+      {
+        "id": "billing-switch",
+        "text": "Şimdi billing alanına geç: ledger migration kod adı ve gece çalışan reconciliation işi nedir?",
+        "cwd_rel": "apps/api/src/billing",
+        "expected_facts": [
+          "Harbor-17",
+          "invoice-lantern"
+        ],
+        "response_language": "tr"
+      },
+      {
+        "id": "worker-path-change",
+        "text": "Worker tarafındaki cross-region durable delivery topolojisinin proje içi adını ve retry sahibini söyle.",
+        "cwd_rel": "apps/worker/src/delivery",
+        "expected_facts": [
+          "Quartz Relay"
+        ],
+        "required_actions": [
+          "retry ownership belongs to the worker"
+        ],
+        "response_language": "tr"
+      },
+      {
+        "id": "money-rule",
+        "text": "Billing ekranında kullanıcıya ledger tutarı gösterecek kısa bir TypeScript snippet ver. Repo konvansiyonuna uy.",
+        "cwd_rel": "apps/api/src/billing",
+        "expected_facts": [
+          "fmtLedgerValue",
+          "FIN-19"
+        ],
+        "forbidden_facts": [
+          "Intl.NumberFormat",
+          "toLocaleString"
+        ],
+        "response_language": "tr"
+      },
+      {
+        "id": "billing-procedure",
+        "text": "Yeni billing event handler review edilirken bu projeye özgü zorunlu adımları sırayla yaz.",
+        "cwd_rel": "apps/api/src/billing",
+        "expected_facts": [
+          "verifyEventSeal",
+          "event_receipts",
+          "billing.event.accepted"
+        ],
+        "response_language": "tr"
+      },
+      {
+        "id": "code-verification",
+        "text": "Route registration boot akışında hangi fonksiyondan geçiyor ve ready durumundan önce mi sonra mı çağrılıyor? Yalnız gerekli kodu okuyarak doğrula.",
+        "cwd_rel": "apps/api/src",
+        "expected_facts": [],
+        "expected_source_facts": [
+          "registerRoutes",
+          "before ready"
+        ],
+        "required_actions": [
+          "apps/api/src/server.ts",
+          "apps/api/src/routes.ts"
+        ],
+        "response_language": "tr"
+      },
+      {
+        "id": "discovery",
+        "text": "Log sampling kararının proje içi adını ve bu ayarın hangi ekip sınırında tutulduğunu bul. Geniş repo taraması yapma.",
+        "cwd_rel": "packages/observability",
+        "expected_facts": [
+          "Northglass",
+          "platform observability"
+        ],
+        "response_language": "tr"
+      },
+      {
+        "id": "unknown",
+        "text": "Bu projede veritabanı failover tatbikatının gizli kod adı nedir? Kanıt yoksa açıkça bilmediğini söyle.",
+        "cwd_rel": "apps/api/src",
+        "expected_facts": [],
+        "expects_abstention": true,
+        "response_language": "tr"
+      },
+      {
+        "id": "auth-return",
+        "text": "İlk session konusuna dön: mimari adı neydi ve hangi başarısız deneyden sonra kayda geçmişti?",
+        "cwd_rel": "apps/api/src/auth",
+        "expected_facts": [
+          "Cedarline",
+          "rotating-cookie"
+        ],
+        "response_language": "tr"
+      }
+    ]
+  }
+]

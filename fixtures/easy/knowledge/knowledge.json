@@ -1,0 +1,203 @@
+{
+  "schema_version": 1,
+  "tier": "easy",
+  "items": [
+    {
+      "id": "mem-auth-001",
+      "kind": "memory",
+      "title": "Authentication session decision",
+      "body": "The session architecture is internally called **Cedarline**. The decision was recorded in **AUTH-271** after the failed rotating-cookie experiment. Browser sessions use a server-held family record; mobile refresh remains separate.",
+      "node_paths": [
+        "/apps/api/src/auth"
+      ],
+      "relevance": "relevant",
+      "case_ids": [
+        "auth-recall",
+        "auth-return"
+      ]
+    },
+    {
+      "id": "mem-auth-002",
+      "kind": "memory",
+      "title": "Authentication recovery policy",
+      "body": "Compromised session families enter the **Sundial quarantine** state. Recovery requires revoking the family before issuing a replacement; extending the old family is forbidden.",
+      "node_paths": [
+        "/apps/api/src/auth"
+      ],
+      "relevance": "relevant",
+      "case_ids": [
+        "auth-followup"
+      ]
+    },
+    {
+      "id": "mem-billing-001",
+      "kind": "memory",
+      "title": "Billing ledger migration",
+      "body": "The ledger migration is codenamed **Harbor-17**. Its nightly reconciliation job is **invoice-lantern** and discrepancies are escalated to the finance queue rather than repaired inline.",
+      "node_paths": [
+        "/apps/api/src/billing"
+      ],
+      "relevance": "relevant",
+      "case_ids": [
+        "billing-switch"
+      ]
+    },
+    {
+      "id": "mem-worker-001",
+      "kind": "memory",
+      "title": "Worker delivery topology",
+      "body": "Cross-region delivery uses the **Quartz Relay** topology. Retry ownership belongs to the worker, while the API records only the durable handoff receipt.",
+      "node_paths": [
+        "/apps/worker/src/delivery"
+      ],
+      "relevance": "relevant",
+      "case_ids": [
+        "worker-path-change"
+      ]
+    },
+    {
+      "id": "rule-billing-001",
+      "kind": "rule",
+      "title": "Format ledger values with the project helper",
+      "body": "User-visible ledger amounts MUST use `fmtLedgerValue` from `@acme/ledger-format`. Direct `Intl.NumberFormat`, `toLocaleString`, and currency-symbol concatenation are forbidden by **FIN-19**.",
+      "node_paths": [
+        "/apps/api/src/billing"
+      ],
+      "priority": "high",
+      "scope_type": "folder",
+      "relevance": "relevant",
+      "case_ids": [
+        "money-rule"
+      ]
+    },
+    {
+      "id": "skill-billing-001",
+      "kind": "skill",
+      "title": "billing-event-review",
+      "description": "Project checklist for reviewing a billing event handler.",
+      "body": "1. Verify the envelope with `verifyEventSeal`.\n2. Check `event_receipts` by event id and return on duplicates.\n3. Persist the receipt before side effects.\n4. Emit `billing.event.accepted` before returning success.\n5. Route reconciliation failures to the finance queue; never mutate totals inline.",
+      "node_paths": [
+        "/apps/api/src/billing"
+      ],
+      "relevance": "relevant",
+      "case_ids": [
+        "billing-procedure"
+      ]
+    },
+    {
+      "id": "mem-observability-001",
+      "kind": "memory",
+      "title": "Observability ownership",
+      "body": "The log sampling initiative is called **Northglass**. Sampling policy is owned by platform observability and must not be overridden inside feature packages.",
+      "node_paths": [
+        "/packages/observability"
+      ],
+      "relevance": "relevant",
+      "case_ids": [
+        "discovery"
+      ]
+    },
+    {
+      "id": "mem-auth-neg-001",
+      "kind": "memory",
+      "title": "Authentication device enrollment",
+      "body": "Device enrollment uses the **Cedarbridge** flow recorded in AUTH-217. It applies only to trusted-device registration and says nothing about session-family recovery.",
+      "node_paths": [
+        "/apps/api/src/auth/devices"
+      ],
+      "relevance": "hard-negative",
+      "case_ids": []
+    },
+    {
+      "id": "mem-billing-neg-001",
+      "kind": "memory",
+      "title": "Billing export migration",
+      "body": "The accounting export rewrite is **Harbor-71** and its batch is `invoice-beacon`. It exports settled rows and is unrelated to ledger reconciliation.",
+      "node_paths": [
+        "/apps/api/src/billing/exports"
+      ],
+      "relevance": "hard-negative",
+      "case_ids": []
+    },
+    {
+      "id": "rule-billing-neg-001",
+      "kind": "rule",
+      "title": "Format internal CSV decimals",
+      "body": "Internal finance CSV files use `fmtLedgerCsvDecimal`. This helper is for machine exports only and must never format user-visible values.",
+      "node_paths": [
+        "/apps/api/src/billing/exports"
+      ],
+      "priority": "medium",
+      "scope_type": "folder",
+      "relevance": "hard-negative",
+      "case_ids": []
+    },
+    {
+      "id": "mem-worker-neg-001",
+      "kind": "memory",
+      "title": "Worker analytics relay",
+      "body": "Analytics fanout uses the **Quartz Mirror** stream. It is lossy telemetry and must not be confused with durable cross-region delivery.",
+      "node_paths": [
+        "/apps/worker/src/analytics"
+      ],
+      "relevance": "hard-negative",
+      "case_ids": []
+    },
+    {
+      "id": "skill-easy-0",
+      "kind": "skill",
+      "title": "search-release-check-1",
+      "description": "Release checklist for search module 1.",
+      "body": "1. Run `checkEASY-001-search`.\n2. Compare the search snapshot.\n3. Record marker **EASY-001-search**.\n4. Notify the owning search channel.",
+      "node_paths": [
+        "/apps/search/src/feature-1"
+      ],
+      "relevance": "unrelated",
+      "case_ids": []
+    },
+    {
+      "id": "mem-easy-1",
+      "kind": "memory",
+      "title": "notifications decision record 1",
+      "body": "The notifications team's module 1 is internally named **EASY-002-notifications**. Its maintenance window and ownership are local to /packages/notifications/src/module-1; this record is unrelated to auth, billing, delivery, and logging.",
+      "node_paths": [
+        "/packages/notifications/src/module-1"
+      ],
+      "relevance": "unrelated",
+      "case_ids": []
+    },
+    {
+      "id": "mem-easy-2",
+      "kind": "memory",
+      "title": "files decision record 1",
+      "body": "The files team's module 1 is internally named **EASY-003-files**. Its maintenance window and ownership are local to /packages/files/src/module-1; this record is unrelated to auth, billing, delivery, and logging.",
+      "node_paths": [
+        "/packages/files/src/module-1"
+      ],
+      "relevance": "unrelated",
+      "case_ids": []
+    },
+    {
+      "id": "mem-easy-3",
+      "kind": "memory",
+      "title": "analytics decision record 1",
+      "body": "The analytics team's module 1 is internally named **EASY-004-analytics**. Its maintenance window and ownership are local to /apps/analytics/src/feature-1; this record is unrelated to auth, billing, delivery, and logging.",
+      "node_paths": [
+        "/apps/analytics/src/feature-1"
+      ],
+      "relevance": "unrelated",
+      "case_ids": []
+    },
+    {
+      "id": "mem-easy-4",
+      "kind": "memory",
+      "title": "admin decision record 1",
+      "body": "The admin team's module 1 is internally named **EASY-005-admin**. Its maintenance window and ownership are local to /packages/admin/src/module-1; this record is unrelated to auth, billing, delivery, and logging.",
+      "node_paths": [
+        "/packages/admin/src/module-1"
+      ],
+      "relevance": "unrelated",
+      "case_ids": []
+    }
+  ]
+}

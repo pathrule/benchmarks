@@ -31,6 +31,7 @@ export interface PromptSpec {
   text: string;
   cwd_rel?: string;
   expected_facts: string[];
+  expected_source_facts?: string[];
   forbidden_facts?: string[];
   required_actions?: string[];
   forbidden_actions?: string[];
