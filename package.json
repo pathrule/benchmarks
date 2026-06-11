@@ -1,0 +1,23 @@
+{
+  "name": "@pathrule/benchmarks",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=20.11.1"
+  },
+  "scripts": {
+    "bench": "tsx harness/cli.ts",
+    "build:fixtures": "tsx scripts/build-fixtures.ts",
+    "report": "tsx scripts/report.ts",
+    "test": "node --import tsx --test 'harness/**/*.test.ts'",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run typecheck && npm test"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.8.3"
+  }
+}
