@@ -1,0 +1,8 @@
+node_modules/
+.bench-home/
+*.log
+.DS_Store
+# raw per-run agent transcripts are large; only curated results/ is committed
+results/raw/
+dist/
+coverage/
