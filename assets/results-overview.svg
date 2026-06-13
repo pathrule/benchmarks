@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="430" viewBox="0 0 1200 430" role="img" aria-labelledby="title desc">
+  <title id="title">Pathrule benchmark result overview</title>
+  <desc id="desc">Median non-cached token comparison for Claude Opus 4.8 and OpenAI Codex GPT-5.5.</desc>
+  <rect width="1200" height="430" rx="28" fill="#0b1020"/>
+  <text x="64" y="66" fill="#f8fafc" font-family="Inter,Arial,sans-serif" font-size="28" font-weight="700">Median non-cached tokens</text>
+  <text x="64" y="98" fill="#94a3b8" font-family="Inter,Arial,sans-serif" font-size="17">Hard tier · English · N=3 · lower is better</text>
+
+  <rect x="64" y="137" width="520" height="225" rx="20" fill="#111a2e"/>
+  <text x="92" y="177" fill="#e2e8f0" font-family="Inter,Arial,sans-serif" font-size="21" font-weight="700">Claude Opus 4.8</text>
+  <text x="92" y="214" fill="#94a3b8" font-family="Inter,Arial,sans-serif" font-size="15">Monolithic</text>
+  <rect x="202" y="196" width="310" height="24" rx="12" fill="#475569"/>
+  <text x="522" y="214" fill="#cbd5e1" font-family="Inter,Arial,sans-serif" font-size="15" text-anchor="end">30,918</text>
+  <text x="92" y="263" fill="#94a3b8" font-family="Inter,Arial,sans-serif" font-size="15">Pathrule</text>
+  <rect x="202" y="245" width="161" height="24" rx="12" fill="#38bdf8"/>
+  <text x="373" y="263" fill="#7dd3fc" font-family="Inter,Arial,sans-serif" font-size="15">16,084</text>
+  <text x="92" y="322" fill="#7dd3fc" font-family="Inter,Arial,sans-serif" font-size="35" font-weight="800">-48.0%</text>
+  <text x="244" y="320" fill="#94a3b8" font-family="Inter,Arial,sans-serif" font-size="15">facts 100% → 100%</text>
+
+  <rect x="616" y="137" width="520" height="225" rx="20" fill="#111a2e"/>
+  <text x="644" y="177" fill="#e2e8f0" font-family="Inter,Arial,sans-serif" font-size="21" font-weight="700">OpenAI Codex GPT-5.5</text>
+  <text x="644" y="214" fill="#94a3b8" font-family="Inter,Arial,sans-serif" font-size="15">Monolithic</text>
+  <rect x="754" y="196" width="303" height="24" rx="12" fill="#475569"/>
+  <text x="1067" y="214" fill="#cbd5e1" font-family="Inter,Arial,sans-serif" font-size="15" text-anchor="end">30,287</text>
+  <text x="644" y="263" fill="#94a3b8" font-family="Inter,Arial,sans-serif" font-size="15">Pathrule</text>
+  <rect x="754" y="245" width="277" height="24" rx="12" fill="#a78bfa"/>
+  <text x="1041" y="263" fill="#c4b5fd" font-family="Inter,Arial,sans-serif" font-size="15">27,682</text>
+  <text x="644" y="322" fill="#c4b5fd" font-family="Inter,Arial,sans-serif" font-size="35" font-weight="800">-8.6%</text>
+  <text x="770" y="320" fill="#94a3b8" font-family="Inter,Arial,sans-serif" font-size="15">facts 95.2% → 93.7%</text>
+
+  <text x="600" y="402" fill="#64748b" font-family="Inter,Arial,sans-serif" font-size="14" text-anchor="middle">Same pinned Fastify snapshot · same 168 synthetic knowledge records · same ten prompts</text>
+</svg>

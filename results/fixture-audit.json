@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "tiers": [
+    {
+      "schema_version": 1,
+      "tier": "hard",
+      "generated_at": "2026-06-12T00:00:00.000Z",
+      "repository_name": "fastify",
+      "repository_commit": "3983cce8124714242099e8756a7a9a80a0ba0aea",
+      "knowledge_count": 168,
+      "counts": {
+        "memory": 121,
+        "rule": 31,
+        "skill": 16
+      },
+      "relevance_counts": {
+        "relevant": 7,
+        "hard-negative": 4,
+        "unrelated": 157
+      },
+      "repository_files": 389,
+      "directory_count": 31,
+      "prompt_count": 10,
+      "contamination_passed": true
+    }
+  ]
+}

@@ -3,7 +3,12 @@ import { fileURLToPath } from "node:url";
 
 import { createSuiteConfig, loadSessions, selectionFromArgs } from "./config.js";
 import { buildExecutionGraph, matchesRefresh, parseRefreshSelectors } from "./execution/graph.js";
+import { executeCell } from "./execution/runner.js";
 import { pendingPlans, readRunLog } from "./execution/store.js";
+import {
+  buildPathruleRuntime,
+  resolvePathruleRuntime,
+} from "./runtime/provenance.js";
 
 function value(name: string): string | undefined {
   const index = process.argv.indexOf(name);
@@ -14,7 +19,35 @@ function flag(name: string): boolean {
   return process.argv.includes(name);
 }
 
-function main(): void {
+function printHelp(): void {
+  console.log(`Pathrule benchmark
+
+Usage:
+  npm run bench -- [options]
+
+Options:
+  --dry-run                 Print the execution graph without model calls
+  --resume                  Reuse matching completed cells
+  --tiers hard              Published tier (default: hard)
+  --clients LIST            claude,codex (default: both)
+  --variants LIST           monolithic,pathrule-current (default: both)
+  --runs N                  Repetitions per cell (default: 3)
+  --pathrule-repo PATH      Pathrule source checkout (default: ../pathrule)
+  --claude-model MODEL      Claude model request (default: opus)
+  --codex-model MODEL       Codex model request (default: gpt-5.5)
+  --timeout-ms N            Per-client timeout (default: 300000)
+  --skip-build              Use existing Pathrule build output
+  --keep-worktrees          Preserve materialized run directories
+  --refresh SELECTORS       Rerun matching cells while resuming others
+  --help                    Show this help without starting a run
+`);
+}
+
+async function main(): Promise<void> {
+  if (flag("--help") || flag("-h")) {
+    printHelp();
+    return;
+  }
   const benchRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
   const pathruleRepo = resolve(value("--pathrule-repo") ?? "../pathrule");
   const selection = selectionFromArgs({
@@ -22,7 +55,6 @@ function main(): void {
     clients: value("--clients"),
     variants: value("--variants"),
     repetitions: value("--runs"),
-    ablations: flag("--ablations"),
   });
   const sessions = loadSessions(benchRoot, selection.tiers);
   const config = createSuiteConfig({
@@ -65,9 +97,52 @@ function main(): void {
     ),
   );
 
-  if (!flag("--dry-run")) {
-    throw new Error("execution_not_implemented_yet: use --dry-run");
+  if (flag("--dry-run")) return;
+  const runtime = flag("--skip-build")
+    ? resolvePathruleRuntime(pathruleRepo)
+    : buildPathruleRuntime(pathruleRepo);
+  const provenancePath = resolve(benchRoot, "results", "provenance.json");
+  await import("node:fs").then(({ mkdirSync, writeFileSync }) => {
+    mkdirSync(resolve(benchRoot, "results"), { recursive: true });
+    writeFileSync(
+      provenancePath,
+      `${JSON.stringify(
+        {
+          schema_version: 1,
+          generated_at: new Date().toISOString(),
+          suite: config,
+          runtime,
+          clients: {
+            claude: value("--claude-model") ?? "opus",
+            codex: value("--codex-model") ?? "gpt-5.5",
+          },
+          platform: {
+            platform: process.platform,
+            arch: process.arch,
+            node: process.version,
+          },
+        },
+        null,
+        2,
+      )}\n`,
+      "utf8",
+    );
+  });
+  for (const [index, plan] of pending.entries()) {
+    console.log(`[${index + 1}/${pending.length}] ${plan.cell_id}`);
+    const record = await executeCell({
+      benchRoot,
+      config,
+      runtime,
+      plan,
+      runLog,
+      keepWorktrees: flag("--keep-worktrees"),
+    });
+    console.log(`${record.status}: ${plan.cell_id}`);
   }
 }
 
-main();
+main().catch((error) => {
+  console.error(error instanceof Error ? error.stack ?? error.message : String(error));
+  process.exitCode = 1;
+});

@@ -1,9 +1,0 @@
-{
-  "name": "acme-synthetic-workspace",
-  "private": true,
-  "type": "module",
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ]
-}

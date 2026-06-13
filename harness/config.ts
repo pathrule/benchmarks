@@ -3,9 +3,7 @@ import { readFileSync } from "node:fs";
 import { isAbsolute, resolve } from "node:path";
 
 import {
-  ABLATION_VARIANTS,
   CLIENTS,
-  HEADLINE_VARIANTS,
   TIERS,
   VARIANTS,
   type ClientId,
@@ -77,15 +75,11 @@ export function selectionFromArgs(args: {
   clients?: string;
   variants?: string;
   repetitions?: string;
-  ablations: boolean;
 }): ExecutionSelection {
-  const defaultVariants = args.ablations
-    ? [...HEADLINE_VARIANTS, ...ABLATION_VARIANTS]
-    : [...HEADLINE_VARIANTS];
   return {
     tiers: listArg(args.tiers, TIERS),
     clients: listArg(args.clients, CLIENTS),
-    variants: args.variants ? listArg(args.variants, VARIANTS) : defaultVariants,
+    variants: listArg(args.variants, VARIANTS),
     repetitions: Number(args.repetitions ?? 3),
   };
 }

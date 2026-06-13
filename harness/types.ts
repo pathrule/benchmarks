@@ -1,16 +1,10 @@
-export const TIERS = ["easy", "medium", "hard"] as const;
+export const TIERS = ["hard"] as const;
 export type TierId = (typeof TIERS)[number];
 
 export const CLIENTS = ["claude", "codex"] as const;
 export type ClientId = (typeof CLIENTS)[number];
 
-export const HEADLINE_VARIANTS = ["bare", "monolithic", "pathrule-current"] as const;
-export const ABLATION_VARIANTS = [
-  "pathrule-native",
-  "pathrule-navigation",
-  "pathrule-full",
-] as const;
-export const VARIANTS = [...HEADLINE_VARIANTS, ...ABLATION_VARIANTS] as const;
+export const VARIANTS = ["monolithic", "pathrule-current"] as const;
 export type VariantId = (typeof VARIANTS)[number];
 
 export type RunStatus =
@@ -32,11 +26,12 @@ export interface PromptSpec {
   cwd_rel?: string;
   expected_facts: string[];
   expected_source_facts?: string[];
+  knowledge_only_facts?: string[];
   forbidden_facts?: string[];
   required_actions?: string[];
   forbidden_actions?: string[];
   expects_abstention?: boolean;
-  response_language: "tr" | "en";
+  response_language: "en" | "es";
 }
 
 export interface SuiteConfig {

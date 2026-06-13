@@ -30,9 +30,11 @@ export function buildExecutionGraph(
       for (const client of selection.clients) {
         for (const variant of selection.variants) {
           for (let repetition = 0; repetition < selection.repetitions; repetition += 1) {
+            const sourceCommit =
+              variant === "monolithic" ? "pathrule-independent" : config.pathrule_commit;
             const identity: CellIdentity = {
               suite_version: config.suite_version,
-              source_commit: config.pathrule_commit,
+              source_commit: sourceCommit,
               tier,
               session_id: session.id,
               client,

@@ -1,4 +1,4 @@
-import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
 import { TIERS, type PromptSpec, type SessionSpec, type TierId } from "../types.js";
@@ -9,6 +9,11 @@ import {
   type FixtureManifest,
   type KnowledgeKind,
 } from "./types.js";
+import {
+  loadRepositorySpec,
+  repositoryFileList,
+  type RepositorySpec,
+} from "./repository.js";
 
 const GENERATED_AT = "2026-06-12T00:00:00.000Z";
 
@@ -16,50 +21,50 @@ const CORE_ITEMS: CanonicalKnowledgeItem[] = [
   {
     id: "mem-auth-001",
     kind: "memory",
-    title: "Authentication session decision",
+    title: "Route compilation decision",
     body:
-      "The session architecture is internally called **Cedarline**. The decision was recorded in **AUTH-271** after the failed rotating-cookie experiment. Browser sessions use a server-held family record; mobile refresh remains separate.",
-    node_paths: ["/apps/api/src/auth"],
+      "The route compilation architecture is internally called **Cedarline**. The decision was recorded in **FAST-271** after the failed mutable-router experiment. Routes become immutable once boot starts.",
+    node_paths: ["/lib/route.js"],
     relevance: "relevant",
     case_ids: ["auth-recall", "auth-return"],
   },
   {
     id: "mem-auth-002",
     kind: "memory",
-    title: "Authentication recovery policy",
+    title: "Hook timeout recovery policy",
     body:
-      "Compromised session families enter the **Sundial quarantine** state. Recovery requires revoking the family before issuing a replacement; extending the old family is forbidden.",
-    node_paths: ["/apps/api/src/auth"],
+      "A timed-out lifecycle hook enters the **Sundial quarantine** path. Recovery must preserve the original hook name and append timeout context before the error is propagated.",
+    node_paths: ["/lib/hooks.js"],
     relevance: "relevant",
     case_ids: ["auth-followup"],
   },
   {
     id: "mem-billing-001",
     kind: "memory",
-    title: "Billing ledger migration",
+    title: "Reply serialization migration",
     body:
-      "The ledger migration is codenamed **Harbor-17**. Its nightly reconciliation job is **invoice-lantern** and discrepancies are escalated to the finance queue rather than repaired inline.",
-    node_paths: ["/apps/api/src/billing"],
+      "The reply serialization migration is codenamed **Harbor-17**. Its compatibility verifier is **payload-lantern** and mismatches must surface through Fastify errors rather than silent coercion.",
+    node_paths: ["/lib/reply.js"],
     relevance: "relevant",
     case_ids: ["billing-switch"],
   },
   {
     id: "mem-worker-001",
     kind: "memory",
-    title: "Worker delivery topology",
+    title: "Validation compiler topology",
     body:
-      "Cross-region delivery uses the **Quartz Relay** topology. Retry ownership belongs to the worker, while the API records only the durable handoff receipt.",
-    node_paths: ["/apps/worker/src/delivery"],
+      "Validation and serialization compiler ownership uses the **Quartz Relay** topology. Schema compilation belongs to the route setup phase, while request handling consumes the compiled functions.",
+    node_paths: ["/lib/validation.js", "/lib/route.js"],
     relevance: "relevant",
     case_ids: ["worker-path-change"],
   },
   {
     id: "rule-billing-001",
     kind: "rule",
-    title: "Format ledger values with the project helper",
+    title: "Create framework errors through the canonical module",
     body:
-      "User-visible ledger amounts MUST use `fmtLedgerValue` from `@acme/ledger-format`. Direct `Intl.NumberFormat`, `toLocaleString`, and currency-symbol concatenation are forbidden by **FIN-19**.",
-    node_paths: ["/apps/api/src/billing"],
+      "New framework errors MUST be declared through `createError` in `lib/errors.js` and consumed as named `FST_ERR_*` constructors. Throwing anonymous string errors is forbidden by **ERR-19**.",
+    node_paths: ["/lib"],
     priority: "high",
     scope_type: "folder",
     relevance: "relevant",
@@ -68,21 +73,21 @@ const CORE_ITEMS: CanonicalKnowledgeItem[] = [
   {
     id: "skill-billing-001",
     kind: "skill",
-    title: "billing-event-review",
-    description: "Project checklist for reviewing a billing event handler.",
+    title: "route-change-review",
+    description: "Project checklist for reviewing Fastify route lifecycle changes.",
     body:
-      "1. Verify the envelope with `verifyEventSeal`.\n2. Check `event_receipts` by event id and return on duplicates.\n3. Persist the receipt before side effects.\n4. Emit `billing.event.accepted` before returning success.\n5. Route reconciliation failures to the finance queue; never mutate totals inline.",
-    node_paths: ["/apps/api/src/billing"],
+      "Checklist marker: **ROUTE-REVIEW-7**.\n1. Confirm registration still calls `throwIfAlreadyStarted`.\n2. Preserve `onRoute` hook execution before router insertion.\n3. Verify validation and serialization compilers are prepared during route setup.\n4. Add focused coverage under `test/route.1.test.js` or `test/route-hooks.test.js`.\n5. Use `inject()` for behavior tests unless the change specifically concerns listening sockets.",
+    node_paths: ["/lib/route.js", "/test"],
     relevance: "relevant",
     case_ids: ["billing-procedure"],
   },
   {
     id: "mem-observability-001",
     kind: "memory",
-    title: "Observability ownership",
+    title: "Logger ownership",
     body:
-      "The log sampling initiative is called **Northglass**. Sampling policy is owned by platform observability and must not be overridden inside feature packages.",
-    node_paths: ["/packages/observability"],
+      "The child logger compatibility initiative is called **Northglass**. Logger construction is owned by `lib/logger-factory.js`; request or reply modules must not instantiate pino directly.",
+    node_paths: ["/lib/logger-factory.js", "/lib/logger-pino.js"],
     relevance: "relevant",
     case_ids: ["discovery"],
   },
@@ -92,30 +97,30 @@ const HARD_NEGATIVES: CanonicalKnowledgeItem[] = [
   {
     id: "mem-auth-neg-001",
     kind: "memory",
-    title: "Authentication device enrollment",
+    title: "Route constraint registration",
     body:
-      "Device enrollment uses the **Cedarbridge** flow recorded in AUTH-217. It applies only to trusted-device registration and says nothing about session-family recovery.",
-    node_paths: ["/apps/api/src/auth/devices"],
+      "Constraint registration uses the **Cedarbridge** flow recorded in FAST-217. It applies only to router constraints and says nothing about route compilation immutability.",
+    node_paths: ["/lib/route.js"],
     relevance: "hard-negative",
     case_ids: [],
   },
   {
     id: "mem-billing-neg-001",
     kind: "memory",
-    title: "Billing export migration",
+    title: "Reply trailer migration",
     body:
-      "The accounting export rewrite is **Harbor-71** and its batch is `invoice-beacon`. It exports settled rows and is unrelated to ledger reconciliation.",
-    node_paths: ["/apps/api/src/billing/exports"],
+      "The reply trailer rewrite is **Harbor-71** and its verifier is `payload-beacon`. It concerns trailers and is unrelated to serialization compiler ownership.",
+    node_paths: ["/lib/reply.js"],
     relevance: "hard-negative",
     case_ids: [],
   },
   {
     id: "rule-billing-neg-001",
     kind: "rule",
-    title: "Format internal CSV decimals",
+    title: "Validate trailer names",
     body:
-      "Internal finance CSV files use `fmtLedgerCsvDecimal`. This helper is for machine exports only and must never format user-visible values.",
-    node_paths: ["/apps/api/src/billing/exports"],
+      "Reply trailers use the existing trailer validation path. This rule is unrelated to declaring new framework error constructors.",
+    node_paths: ["/lib/reply.js"],
     priority: "medium",
     scope_type: "folder",
     relevance: "hard-negative",
@@ -124,10 +129,10 @@ const HARD_NEGATIVES: CanonicalKnowledgeItem[] = [
   {
     id: "mem-worker-neg-001",
     kind: "memory",
-    title: "Worker analytics relay",
+    title: "Schema response normalization",
     body:
-      "Analytics fanout uses the **Quartz Mirror** stream. It is lossy telemetry and must not be confused with durable cross-region delivery.",
-    node_paths: ["/apps/worker/src/analytics"],
+      "Response schema normalization uses the **Quartz Mirror** path. It must not be confused with validation compiler ownership during route setup.",
+    node_paths: ["/lib/validation.js"],
     relevance: "hard-negative",
     case_ids: [],
   },
@@ -160,41 +165,6 @@ const AREAS = [
   "invitations",
 ];
 
-const CODE_FILES: Record<string, string> = {
-  "package.json": JSON.stringify(
-    {
-      name: "acme-synthetic-workspace",
-      private: true,
-      type: "module",
-      workspaces: ["apps/*", "packages/*"],
-    },
-    null,
-    2,
-  ) + "\n",
-  "README.md":
-    "# Acme synthetic workspace\n\nThis repository is generated for context-delivery benchmarks.\n",
-  "apps/api/src/server.ts":
-    "import { registerRoutes } from './routes.js';\n\nexport async function boot() {\n  const app = { ready: false };\n  registerRoutes(app);\n  app.ready = true;\n  return app;\n}\n",
-  "apps/api/src/routes.ts":
-    "export function registerRoutes(app: { ready: boolean }) {\n  if (app.ready) throw new Error('routes must register before ready');\n}\n",
-  "apps/api/src/auth/session.ts":
-    "export function rotateSession(familyId: string) {\n  return { familyId, rotatedAt: Date.now() };\n}\n",
-  "apps/api/src/auth/recovery.ts":
-    "export function revokeFamily(id: string) {\n  return { id, revoked: true };\n}\n",
-  "apps/api/src/billing/ledger.ts":
-    "export function monthlyLedgerTotal(rows: number[]) {\n  return rows.reduce((sum, value) => sum + value, 0);\n}\n",
-  "apps/api/src/billing/events.ts":
-    "export async function acceptBillingEvent(eventId: string) {\n  return { eventId, accepted: true };\n}\n",
-  "apps/worker/src/delivery/dispatch.ts":
-    "export async function dispatch(receiptId: string) {\n  return { receiptId, handedOff: true };\n}\n",
-  "apps/worker/src/analytics/fanout.ts":
-    "export function fanout(event: unknown) {\n  return { event, durable: false };\n}\n",
-  "packages/observability/src/logger.ts":
-    "export function childLogger(scope: string) {\n  return { scope, info: console.log };\n}\n",
-  "packages/ui/src/Button.tsx":
-    "export function Button(props: { label: string }) {\n  return `<button>${props.label}</button>`;\n}\n",
-};
-
 function unrelatedItem(index: number, tier: TierId): CanonicalKnowledgeItem {
   const area = AREAS[index % AREAS.length]!;
   const cycle = Math.floor(index / AREAS.length) + 1;
@@ -202,8 +172,8 @@ function unrelatedItem(index: number, tier: TierId): CanonicalKnowledgeItem {
   const code = `${tier.toUpperCase()}-${String(index + 1).padStart(3, "0")}-${area.replaceAll("-", "")}`;
   const path =
     index % 3 === 0
-      ? `/apps/${area}/src/feature-${cycle}`
-      : `/packages/${area}/src/module-${cycle}`;
+      ? `/test/${area}/case-${cycle}.test.js`
+      : `/lib/${area}/module-${cycle}.js`;
   if (kind === "rule") {
     return {
       id: `rule-${tier}-${index}`,
@@ -245,137 +215,133 @@ function unrelatedItem(index: number, tier: TierId): CanonicalKnowledgeItem {
   };
 }
 
-function benchmarkPrompts(): PromptSpec[] {
-  const common: PromptSpec[] = [
-    {
-      id: "auth-recall",
-      text:
-        "Bu projede tarayıcı session mimarisinin arkasındaki proje içi kararı ve karar kaydını açıkla. Tahmin etme.",
-      cwd_rel: "apps/api/src/auth",
-      expected_facts: ["Cedarline", "AUTH-271"],
-      response_language: "tr",
-    },
-    {
-      id: "auth-followup",
-      text:
-        "Aynı session ailesi ele geçirilmiş sayılırsa içeride hangi duruma alınır ve recovery sırası nasıl olmalıdır?",
-      cwd_rel: "apps/api/src/auth",
-      expected_facts: ["Sundial quarantine", "revoking the family"],
-      response_language: "tr",
-    },
-    {
-      id: "billing-switch",
-      text:
-        "Şimdi billing alanına geç: ledger migration kod adı ve gece çalışan reconciliation işi nedir?",
-      cwd_rel: "apps/api/src/billing",
-      expected_facts: ["Harbor-17", "invoice-lantern"],
-      response_language: "tr",
-    },
-    {
-      id: "worker-path-change",
-      text:
-        "Worker tarafındaki cross-region durable delivery topolojisinin proje içi adını ve retry sahibini söyle.",
-      cwd_rel: "apps/worker/src/delivery",
-      expected_facts: ["Quartz Relay"],
-      required_actions: ["retry ownership belongs to the worker"],
-      response_language: "tr",
-    },
-    {
-      id: "money-rule",
-      text:
-        "Billing ekranında kullanıcıya ledger tutarı gösterecek kısa bir TypeScript snippet ver. Repo konvansiyonuna uy.",
-      cwd_rel: "apps/api/src/billing",
-      expected_facts: ["fmtLedgerValue", "FIN-19"],
-      forbidden_facts: ["Intl.NumberFormat", "toLocaleString"],
-      response_language: "tr",
-    },
-    {
-      id: "billing-procedure",
-      text:
-        "Yeni billing event handler review edilirken bu projeye özgü zorunlu adımları sırayla yaz.",
-      cwd_rel: "apps/api/src/billing",
-      expected_facts: ["verifyEventSeal", "event_receipts", "billing.event.accepted"],
-      response_language: "tr",
-    },
-  ];
-  return [
-    ...common,
-    {
-      id: "code-verification",
-      text:
-        "Route registration boot akışında hangi fonksiyondan geçiyor ve ready durumundan önce mi sonra mı çağrılıyor? Yalnız gerekli kodu okuyarak doğrula.",
-      cwd_rel: "apps/api/src",
-      expected_facts: [],
-      expected_source_facts: ["registerRoutes", "before ready"],
-      required_actions: ["apps/api/src/server.ts", "apps/api/src/routes.ts"],
-      response_language: "tr",
-    },
-    {
-      id: "discovery",
-      text:
-        "Log sampling kararının proje içi adını ve bu ayarın hangi ekip sınırında tutulduğunu bul. Geniş repo taraması yapma.",
-      cwd_rel: "packages/observability",
-      expected_facts: ["Northglass", "platform observability"],
-      response_language: "tr",
-    },
-    {
-      id: "unknown",
-      text:
-        "Bu projede veritabanı failover tatbikatının gizli kod adı nedir? Kanıt yoksa açıkça bilmediğini söyle.",
-      cwd_rel: "apps/api/src",
-      expected_facts: [],
-      expects_abstention: true,
-      response_language: "tr",
-    },
-    {
-      id: "auth-return",
-      text:
-        "İlk session konusuna dön: mimari adı neydi ve hangi başarısız deneyden sonra kayda geçmişti?",
-      cwd_rel: "apps/api/src/auth",
-      expected_facts: ["Cedarline", "rotating-cookie"],
-      response_language: "tr",
-    },
-  ];
-}
+const PROMPTS: PromptSpec[] = [
+  {
+    id: "auth-recall",
+    text: "Explain the team's internal name for Fastify's route compilation architecture and its decision record. Do not guess.",
+    cwd_rel: "lib",
+    expected_facts: ["Cedarline", "FAST-271"],
+    knowledge_only_facts: ["Cedarline", "FAST-271"],
+    response_language: "en",
+  },
+  {
+    id: "auth-followup",
+    text: "If a lifecycle hook times out, what is the team's internal name for the recovery path, and which two pieces of information must be preserved when the error is propagated?",
+    cwd_rel: "lib",
+    expected_facts: ["Sundial quarantine", "original hook name", "timeout context"],
+    knowledge_only_facts: ["Sundial quarantine"],
+    response_language: "en",
+  },
+  {
+    id: "billing-switch",
+    text: "Now switch to the reply area: what is the serialization migration codename and its compatibility verifier?",
+    cwd_rel: "lib",
+    expected_facts: ["Harbor-17", "payload-lantern"],
+    knowledge_only_facts: ["Harbor-17", "payload-lantern"],
+    response_language: "en",
+  },
+  {
+    id: "worker-path-change",
+    text: "Give the team's internal name for the validation compiler topology and state which phase schema compilation belongs to.",
+    cwd_rel: "lib",
+    expected_facts: ["Quartz Relay"],
+    knowledge_only_facts: ["Quartz Relay"],
+    required_actions: ["route setup"],
+    response_language: "en",
+  },
+  {
+    id: "money-rule",
+    text: "Give a short CommonJS snippet to add a new framework error to Fastify core. Follow the repo convention.",
+    cwd_rel: "lib",
+    expected_facts: ["createError", "FST_ERR_", "ERR-19"],
+    knowledge_only_facts: ["ERR-19"],
+    forbidden_facts: ["throw '", "throw \""],
+    response_language: "en",
+  },
+  {
+    id: "billing-procedure",
+    text: "List, in order, the project-specific mandatory steps when a Fastify route lifecycle change is reviewed.",
+    cwd_rel: "lib",
+    expected_facts: ["ROUTE-REVIEW-7", "throwIfAlreadyStarted", "onRoute", "inject()"],
+    knowledge_only_facts: ["ROUTE-REVIEW-7"],
+    response_language: "en",
+  },
+  {
+    id: "code-verification",
+    text: "Which router library does Fastify route registration use, and which function checks for an already-started instance when adding a new route? Verify by reading only the necessary code.",
+    cwd_rel: "lib",
+    expected_facts: [],
+    expected_source_facts: ["find-my-way", "throwIfAlreadyStarted"],
+    required_actions: ["lib/route.js"],
+    response_language: "en",
+  },
+  {
+    id: "discovery",
+    text: "Find the team's internal name for the child logger compatibility decision and which file owns logger construction. Do not do a broad repo scan.",
+    cwd_rel: "lib",
+    expected_facts: ["Northglass", "lib/logger-factory.js"],
+    knowledge_only_facts: ["Northglass"],
+    response_language: "en",
+  },
+  {
+    id: "unknown",
+    text: "What is the secret codename of the HTTP/3 migration program in this Fastify workspace? If there is no evidence, clearly say you don't know.",
+    cwd_rel: "lib",
+    expected_facts: [],
+    expects_abstention: true,
+    response_language: "en",
+  },
+  {
+    id: "auth-return",
+    text: "Return to the first route compilation topic: what was the architecture name and after which failed experiment was it recorded?",
+    cwd_rel: "lib",
+    expected_facts: ["Cedarline", "mutable-router"],
+    knowledge_only_facts: ["Cedarline", "mutable-router"],
+    response_language: "en",
+  },
+];
 
 function definition(tier: TierId): FixtureDefinition {
-  const targets: Record<TierId, number> = { easy: 16, medium: 56, hard: 168 };
+  const targets: Record<TierId, number> = { hard: 168 };
   const base = [...CORE_ITEMS, ...HARD_NEGATIVES];
   const knowledge = [...base];
   for (let index = 0; knowledge.length < targets[tier]; index += 1) {
     knowledge.push(unrelatedItem(index, tier));
   }
-  const prompts = benchmarkPrompts();
-  const session: SessionSpec = {
-    id: "world-session",
-    initial_cwd_rel: prompts[0]!.cwd_rel ?? ".",
-    prompts,
-  };
-  const files = { ...CODE_FILES };
-  for (let index = 0; index < 36; index += 1) {
-    const area = AREAS[index % AREAS.length]!;
-    files[`packages/${area}/src/module-${index + 1}.ts`] =
-      `export const module${index + 1} = { area: ${JSON.stringify(area)}, enabled: true };\n`;
-  }
-  return { tier, files, knowledge, sessions: [session] };
+  const prompts = structuredClone(PROMPTS);
+  const sessions: SessionSpec[] = [
+    { id: "world-en", initial_cwd_rel: prompts[0]!.cwd_rel ?? ".", prompts },
+  ];
+  return { tier, knowledge, sessions };
 }
 
-function assertNoContamination(def: FixtureDefinition): void {
+function assertNoContamination(
+  def: FixtureDefinition,
+  repositoryRoot: string,
+  repositoryFiles: string[],
+): void {
   const prompts = def.sessions.flatMap((session) => session.prompts);
   const hiddenFacts = allKnowledgeFacts(prompts);
   const searchable = [
-    ...Object.entries(def.files).flatMap(([path, content]) => [path, content]),
+    ...repositoryFiles.flatMap((path) => {
+      const absolute = join(repositoryRoot, path);
+      try {
+        return [path, readFileSync(absolute, "utf8")];
+      } catch {
+        return [path];
+      }
+    }),
     ...prompts.map((prompt) => prompt.text),
-  ].join("\n").toLocaleLowerCase("tr");
-  const leaked = hiddenFacts.filter((fact) => searchable.includes(fact.toLocaleLowerCase("tr")));
+  ].join("\n").toLowerCase();
+  const leaked = hiddenFacts.filter((fact) => searchable.includes(fact.toLowerCase()));
   if (leaked.length > 0) {
     throw new Error(`${def.tier}: hidden knowledge leaked outside corpus: ${leaked.join(", ")}`);
   }
 }
 
-function assertPromptDirectoriesExist(def: FixtureDefinition): void {
+function assertPromptDirectoriesExist(def: FixtureDefinition, repositoryFiles: string[]): void {
   const directories = new Set<string>(["."]);
-  for (const path of Object.keys(def.files)) {
+  for (const path of repositoryFiles) {
     let current = dirname(path);
     while (current !== "." && !directories.has(current)) {
       directories.add(current);
@@ -396,45 +362,53 @@ function write(path: string, content: string): void {
   writeFileSync(path, content, "utf8");
 }
 
-function manifest(def: FixtureDefinition): FixtureManifest {
+function manifest(
+  def: FixtureDefinition,
+  repositorySpec: RepositorySpec,
+  repositoryFiles: string[],
+): FixtureManifest {
   const counts = { memory: 0, rule: 0, skill: 0 };
   const relevanceCounts = { relevant: 0, "hard-negative": 0, unrelated: 0 };
   for (const item of def.knowledge) {
     counts[item.kind] += 1;
     relevanceCounts[item.relevance] += 1;
   }
-  const dirs = new Set(Object.keys(def.files).map((path) => dirname(path)));
+  const dirs = new Set(repositoryFiles.map((path) => dirname(path)));
   return {
     schema_version: 1,
     tier: def.tier,
     generated_at: GENERATED_AT,
+    repository_name: repositorySpec.name,
+    repository_commit: repositorySpec.commit,
     knowledge_count: def.knowledge.length,
     counts,
     relevance_counts: relevanceCounts,
-    repository_files: Object.keys(def.files).length,
+    repository_files: repositoryFiles.length,
     directory_count: dirs.size,
     prompt_count: def.sessions.reduce((sum, session) => sum + session.prompts.length, 0),
     contamination_passed: true,
   };
 }
 
-export function buildFixtures(root: string): FixtureManifest[] {
+export function buildFixtures(
+  root: string,
+  repositoryRoot: string,
+  repositorySpec = loadRepositorySpec(dirname(root)),
+): FixtureManifest[] {
   const manifests: FixtureManifest[] = [];
+  const repositoryFiles = repositoryFileList(repositoryRoot);
   for (const tier of TIERS) {
     const def = definition(tier);
-    assertNoContamination(def);
-    assertPromptDirectoriesExist(def);
+    assertNoContamination(def, repositoryRoot, repositoryFiles);
+    assertPromptDirectoriesExist(def, repositoryFiles);
     const tierRoot = join(root, tier);
     rmSync(tierRoot, { recursive: true, force: true });
-    for (const [path, content] of Object.entries(def.files)) {
-      write(join(tierRoot, "repo", path), content);
-    }
     write(
       join(tierRoot, "knowledge", "knowledge.json"),
       JSON.stringify({ schema_version: 1, tier, items: def.knowledge }, null, 2) + "\n",
     );
     write(join(tierRoot, "sessions.json"), JSON.stringify(def.sessions, null, 2) + "\n");
-    const output = manifest(def);
+    const output = manifest(def, repositorySpec, repositoryFiles);
     write(join(tierRoot, "manifest.json"), JSON.stringify(output, null, 2) + "\n");
     manifests.push(output);
   }

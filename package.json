@@ -10,6 +10,10 @@
   "scripts": {
     "bench": "tsx harness/cli.ts",
     "build:fixtures": "tsx scripts/build-fixtures.ts",
+    "fetch:repository": "tsx scripts/fetch-repository.ts",
+    "smoke:materialize": "tsx scripts/materialize-smoke.ts",
+    "build:runtime": "tsx scripts/build-runtime.ts",
+    "sanitize:results": "tsx scripts/sanitize-results.ts",
     "report": "tsx scripts/report.ts",
     "test": "node --import tsx --test 'harness/**/*.test.ts'",
     "typecheck": "tsc --noEmit",

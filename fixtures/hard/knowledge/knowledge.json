@@ -5,10 +5,10 @@
     {
       "id": "mem-auth-001",
       "kind": "memory",
-      "title": "Authentication session decision",
-      "body": "The session architecture is internally called **Cedarline**. The decision was recorded in **AUTH-271** after the failed rotating-cookie experiment. Browser sessions use a server-held family record; mobile refresh remains separate.",
+      "title": "Route compilation decision",
+      "body": "The route compilation architecture is internally called **Cedarline**. The decision was recorded in **FAST-271** after the failed mutable-router experiment. Routes become immutable once boot starts.",
       "node_paths": [
-        "/apps/api/src/auth"
+        "/lib/route.js"
       ],
       "relevance": "relevant",
       "case_ids": [
@@ -19,10 +19,10 @@
     {
       "id": "mem-auth-002",
       "kind": "memory",
-      "title": "Authentication recovery policy",
-      "body": "Compromised session families enter the **Sundial quarantine** state. Recovery requires revoking the family before issuing a replacement; extending the old family is forbidden.",
+      "title": "Hook timeout recovery policy",
+      "body": "A timed-out lifecycle hook enters the **Sundial quarantine** path. Recovery must preserve the original hook name and append timeout context before the error is propagated.",
       "node_paths": [
-        "/apps/api/src/auth"
+        "/lib/hooks.js"
       ],
       "relevance": "relevant",
       "case_ids": [
@@ -32,10 +32,10 @@
     {
       "id": "mem-billing-001",
       "kind": "memory",
-      "title": "Billing ledger migration",
-      "body": "The ledger migration is codenamed **Harbor-17**. Its nightly reconciliation job is **invoice-lantern** and discrepancies are escalated to the finance queue rather than repaired inline.",
+      "title": "Reply serialization migration",
+      "body": "The reply serialization migration is codenamed **Harbor-17**. Its compatibility verifier is **payload-lantern** and mismatches must surface through Fastify errors rather than silent coercion.",
       "node_paths": [
-        "/apps/api/src/billing"
+        "/lib/reply.js"
       ],
       "relevance": "relevant",
       "case_ids": [
@@ -45,10 +45,11 @@
     {
       "id": "mem-worker-001",
       "kind": "memory",
-      "title": "Worker delivery topology",
-      "body": "Cross-region delivery uses the **Quartz Relay** topology. Retry ownership belongs to the worker, while the API records only the durable handoff receipt.",
+      "title": "Validation compiler topology",
+      "body": "Validation and serialization compiler ownership uses the **Quartz Relay** topology. Schema compilation belongs to the route setup phase, while request handling consumes the compiled functions.",
       "node_paths": [
-        "/apps/worker/src/delivery"
+        "/lib/validation.js",
+        "/lib/route.js"
       ],
       "relevance": "relevant",
       "case_ids": [
@@ -58,10 +59,10 @@
     {
       "id": "rule-billing-001",
       "kind": "rule",
-      "title": "Format ledger values with the project helper",
-      "body": "User-visible ledger amounts MUST use `fmtLedgerValue` from `@acme/ledger-format`. Direct `Intl.NumberFormat`, `toLocaleString`, and currency-symbol concatenation are forbidden by **FIN-19**.",
+      "title": "Create framework errors through the canonical module",
+      "body": "New framework errors MUST be declared through `createError` in `lib/errors.js` and consumed as named `FST_ERR_*` constructors. Throwing anonymous string errors is forbidden by **ERR-19**.",
       "node_paths": [
-        "/apps/api/src/billing"
+        "/lib"
       ],
       "priority": "high",
       "scope_type": "folder",
@@ -73,11 +74,12 @@
     {
       "id": "skill-billing-001",
       "kind": "skill",
-      "title": "billing-event-review",
-      "description": "Project checklist for reviewing a billing event handler.",
-      "body": "1. Verify the envelope with `verifyEventSeal`.\n2. Check `event_receipts` by event id and return on duplicates.\n3. Persist the receipt before side effects.\n4. Emit `billing.event.accepted` before returning success.\n5. Route reconciliation failures to the finance queue; never mutate totals inline.",
+      "title": "route-change-review",
+      "description": "Project checklist for reviewing Fastify route lifecycle changes.",
+      "body": "Checklist marker: **ROUTE-REVIEW-7**.\n1. Confirm registration still calls `throwIfAlreadyStarted`.\n2. Preserve `onRoute` hook execution before router insertion.\n3. Verify validation and serialization compilers are prepared during route setup.\n4. Add focused coverage under `test/route.1.test.js` or `test/route-hooks.test.js`.\n5. Use `inject()` for behavior tests unless the change specifically concerns listening sockets.",
       "node_paths": [
-        "/apps/api/src/billing"
+        "/lib/route.js",
+        "/test"
       ],
       "relevance": "relevant",
       "case_ids": [
@@ -87,10 +89,11 @@
     {
       "id": "mem-observability-001",
       "kind": "memory",
-      "title": "Observability ownership",
-      "body": "The log sampling initiative is called **Northglass**. Sampling policy is owned by platform observability and must not be overridden inside feature packages.",
+      "title": "Logger ownership",
+      "body": "The child logger compatibility initiative is called **Northglass**. Logger construction is owned by `lib/logger-factory.js`; request or reply modules must not instantiate pino directly.",
       "node_paths": [
-        "/packages/observability"
+        "/lib/logger-factory.js",
+        "/lib/logger-pino.js"
       ],
       "relevance": "relevant",
       "case_ids": [
@@ -100,10 +103,10 @@
     {
       "id": "mem-auth-neg-001",
       "kind": "memory",
-      "title": "Authentication device enrollment",
-      "body": "Device enrollment uses the **Cedarbridge** flow recorded in AUTH-217. It applies only to trusted-device registration and says nothing about session-family recovery.",
+      "title": "Route constraint registration",
+      "body": "Constraint registration uses the **Cedarbridge** flow recorded in FAST-217. It applies only to router constraints and says nothing about route compilation immutability.",
       "node_paths": [
-        "/apps/api/src/auth/devices"
+        "/lib/route.js"
       ],
       "relevance": "hard-negative",
       "case_ids": []
@@ -111,10 +114,10 @@
     {
       "id": "mem-billing-neg-001",
       "kind": "memory",
-      "title": "Billing export migration",
-      "body": "The accounting export rewrite is **Harbor-71** and its batch is `invoice-beacon`. It exports settled rows and is unrelated to ledger reconciliation.",
+      "title": "Reply trailer migration",
+      "body": "The reply trailer rewrite is **Harbor-71** and its verifier is `payload-beacon`. It concerns trailers and is unrelated to serialization compiler ownership.",
       "node_paths": [
-        "/apps/api/src/billing/exports"
+        "/lib/reply.js"
       ],
       "relevance": "hard-negative",
       "case_ids": []
@@ -122,10 +125,10 @@
     {
       "id": "rule-billing-neg-001",
       "kind": "rule",
-      "title": "Format internal CSV decimals",
-      "body": "Internal finance CSV files use `fmtLedgerCsvDecimal`. This helper is for machine exports only and must never format user-visible values.",
+      "title": "Validate trailer names",
+      "body": "Reply trailers use the existing trailer validation path. This rule is unrelated to declaring new framework error constructors.",
       "node_paths": [
-        "/apps/api/src/billing/exports"
+        "/lib/reply.js"
       ],
       "priority": "medium",
       "scope_type": "folder",
@@ -135,10 +138,10 @@
     {
       "id": "mem-worker-neg-001",
       "kind": "memory",
-      "title": "Worker analytics relay",
-      "body": "Analytics fanout uses the **Quartz Mirror** stream. It is lossy telemetry and must not be confused with durable cross-region delivery.",
+      "title": "Schema response normalization",
+      "body": "Response schema normalization uses the **Quartz Mirror** path. It must not be confused with validation compiler ownership during route setup.",
       "node_paths": [
-        "/apps/worker/src/analytics"
+        "/lib/validation.js"
       ],
       "relevance": "hard-negative",
       "case_ids": []
@@ -150,7 +153,7 @@
       "description": "Release checklist for search module 1.",
       "body": "1. Run `checkHARD-001-search`.\n2. Compare the search snapshot.\n3. Record marker **HARD-001-search**.\n4. Notify the owning search channel.",
       "node_paths": [
-        "/apps/search/src/feature-1"
+        "/test/search/case-1.test.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -159,9 +162,9 @@
       "id": "mem-hard-1",
       "kind": "memory",
       "title": "notifications decision record 1",
-      "body": "The notifications team's module 1 is internally named **HARD-002-notifications**. Its maintenance window and ownership are local to /packages/notifications/src/module-1; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The notifications team's module 1 is internally named **HARD-002-notifications**. Its maintenance window and ownership are local to /lib/notifications/module-1.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/notifications/src/module-1"
+        "/lib/notifications/module-1.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -170,9 +173,9 @@
       "id": "mem-hard-2",
       "kind": "memory",
       "title": "files decision record 1",
-      "body": "The files team's module 1 is internally named **HARD-003-files**. Its maintenance window and ownership are local to /packages/files/src/module-1; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The files team's module 1 is internally named **HARD-003-files**. Its maintenance window and ownership are local to /lib/files/module-1.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/files/src/module-1"
+        "/lib/files/module-1.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -181,9 +184,9 @@
       "id": "mem-hard-3",
       "kind": "memory",
       "title": "analytics decision record 1",
-      "body": "The analytics team's module 1 is internally named **HARD-004-analytics**. Its maintenance window and ownership are local to /apps/analytics/src/feature-1; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The analytics team's module 1 is internally named **HARD-004-analytics**. Its maintenance window and ownership are local to /test/analytics/case-1.test.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/apps/analytics/src/feature-1"
+        "/test/analytics/case-1.test.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -192,9 +195,9 @@
       "id": "mem-hard-4",
       "kind": "memory",
       "title": "admin decision record 1",
-      "body": "The admin team's module 1 is internally named **HARD-005-admin**. Its maintenance window and ownership are local to /packages/admin/src/module-1; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The admin team's module 1 is internally named **HARD-005-admin**. Its maintenance window and ownership are local to /lib/admin/module-1.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/admin/src/module-1"
+        "/lib/admin/module-1.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -203,9 +206,9 @@
       "id": "rule-hard-5",
       "kind": "rule",
       "title": "mobile boundary rule 1",
-      "body": "Within /packages/mobile/src/module-1, public adapters must pass through `guardHARD-006-mobile` before emitting state. This convention is tracked by **HARD-006-mobile** and does not apply outside this area.",
+      "body": "Within /lib/mobile/module-1.js, public adapters must pass through `guardHARD-006-mobile` before emitting state. This convention is tracked by **HARD-006-mobile** and does not apply outside this area.",
       "node_paths": [
-        "/packages/mobile/src/module-1"
+        "/lib/mobile/module-1.js"
       ],
       "priority": "low",
       "scope_type": "folder",
@@ -216,9 +219,9 @@
       "id": "mem-hard-6",
       "kind": "memory",
       "title": "web decision record 1",
-      "body": "The web team's module 1 is internally named **HARD-007-web**. Its maintenance window and ownership are local to /apps/web/src/feature-1; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The web team's module 1 is internally named **HARD-007-web**. Its maintenance window and ownership are local to /test/web/case-1.test.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/apps/web/src/feature-1"
+        "/test/web/case-1.test.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -227,9 +230,9 @@
       "id": "mem-hard-7",
       "kind": "memory",
       "title": "design-system decision record 1",
-      "body": "The design-system team's module 1 is internally named **HARD-008-designsystem**. Its maintenance window and ownership are local to /packages/design-system/src/module-1; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The design-system team's module 1 is internally named **HARD-008-designsystem**. Its maintenance window and ownership are local to /lib/design-system/module-1.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/design-system/src/module-1"
+        "/lib/design-system/module-1.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -238,9 +241,9 @@
       "id": "mem-hard-8",
       "kind": "memory",
       "title": "feature-flags decision record 1",
-      "body": "The feature-flags team's module 1 is internally named **HARD-009-featureflags**. Its maintenance window and ownership are local to /packages/feature-flags/src/module-1; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The feature-flags team's module 1 is internally named **HARD-009-featureflags**. Its maintenance window and ownership are local to /lib/feature-flags/module-1.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/feature-flags/src/module-1"
+        "/lib/feature-flags/module-1.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -249,9 +252,9 @@
       "id": "mem-hard-9",
       "kind": "memory",
       "title": "support decision record 1",
-      "body": "The support team's module 1 is internally named **HARD-010-support**. Its maintenance window and ownership are local to /apps/support/src/feature-1; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The support team's module 1 is internally named **HARD-010-support**. Its maintenance window and ownership are local to /test/support/case-1.test.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/apps/support/src/feature-1"
+        "/test/support/case-1.test.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -260,9 +263,9 @@
       "id": "rule-hard-10",
       "kind": "rule",
       "title": "compliance boundary rule 1",
-      "body": "Within /packages/compliance/src/module-1, public adapters must pass through `guardHARD-011-compliance` before emitting state. This convention is tracked by **HARD-011-compliance** and does not apply outside this area.",
+      "body": "Within /lib/compliance/module-1.js, public adapters must pass through `guardHARD-011-compliance` before emitting state. This convention is tracked by **HARD-011-compliance** and does not apply outside this area.",
       "node_paths": [
-        "/packages/compliance/src/module-1"
+        "/lib/compliance/module-1.js"
       ],
       "priority": "medium",
       "scope_type": "folder",
@@ -276,7 +279,7 @@
       "description": "Release checklist for imports module 1.",
       "body": "1. Run `checkHARD-012-imports`.\n2. Compare the imports snapshot.\n3. Record marker **HARD-012-imports**.\n4. Notify the owning imports channel.",
       "node_paths": [
-        "/packages/imports/src/module-1"
+        "/lib/imports/module-1.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -285,9 +288,9 @@
       "id": "mem-hard-12",
       "kind": "memory",
       "title": "exports decision record 1",
-      "body": "The exports team's module 1 is internally named **HARD-013-exports**. Its maintenance window and ownership are local to /apps/exports/src/feature-1; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The exports team's module 1 is internally named **HARD-013-exports**. Its maintenance window and ownership are local to /test/exports/case-1.test.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/apps/exports/src/feature-1"
+        "/test/exports/case-1.test.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -296,9 +299,9 @@
       "id": "mem-hard-13",
       "kind": "memory",
       "title": "reporting decision record 1",
-      "body": "The reporting team's module 1 is internally named **HARD-014-reporting**. Its maintenance window and ownership are local to /packages/reporting/src/module-1; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The reporting team's module 1 is internally named **HARD-014-reporting**. Its maintenance window and ownership are local to /lib/reporting/module-1.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/reporting/src/module-1"
+        "/lib/reporting/module-1.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -307,9 +310,9 @@
       "id": "mem-hard-14",
       "kind": "memory",
       "title": "experiments decision record 1",
-      "body": "The experiments team's module 1 is internally named **HARD-015-experiments**. Its maintenance window and ownership are local to /packages/experiments/src/module-1; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The experiments team's module 1 is internally named **HARD-015-experiments**. Its maintenance window and ownership are local to /lib/experiments/module-1.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/experiments/src/module-1"
+        "/lib/experiments/module-1.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -318,9 +321,9 @@
       "id": "rule-hard-15",
       "kind": "rule",
       "title": "localization boundary rule 1",
-      "body": "Within /apps/localization/src/feature-1, public adapters must pass through `guardHARD-016-localization` before emitting state. This convention is tracked by **HARD-016-localization** and does not apply outside this area.",
+      "body": "Within /test/localization/case-1.test.js, public adapters must pass through `guardHARD-016-localization` before emitting state. This convention is tracked by **HARD-016-localization** and does not apply outside this area.",
       "node_paths": [
-        "/apps/localization/src/feature-1"
+        "/test/localization/case-1.test.js"
       ],
       "priority": "low",
       "scope_type": "folder",
@@ -331,9 +334,9 @@
       "id": "mem-hard-16",
       "kind": "memory",
       "title": "onboarding decision record 1",
-      "body": "The onboarding team's module 1 is internally named **HARD-017-onboarding**. Its maintenance window and ownership are local to /packages/onboarding/src/module-1; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The onboarding team's module 1 is internally named **HARD-017-onboarding**. Its maintenance window and ownership are local to /lib/onboarding/module-1.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/onboarding/src/module-1"
+        "/lib/onboarding/module-1.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -342,9 +345,9 @@
       "id": "mem-hard-17",
       "kind": "memory",
       "title": "audit decision record 1",
-      "body": "The audit team's module 1 is internally named **HARD-018-audit**. Its maintenance window and ownership are local to /packages/audit/src/module-1; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The audit team's module 1 is internally named **HARD-018-audit**. Its maintenance window and ownership are local to /lib/audit/module-1.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/audit/src/module-1"
+        "/lib/audit/module-1.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -353,9 +356,9 @@
       "id": "mem-hard-18",
       "kind": "memory",
       "title": "scheduler decision record 1",
-      "body": "The scheduler team's module 1 is internally named **HARD-019-scheduler**. Its maintenance window and ownership are local to /apps/scheduler/src/feature-1; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The scheduler team's module 1 is internally named **HARD-019-scheduler**. Its maintenance window and ownership are local to /test/scheduler/case-1.test.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/apps/scheduler/src/feature-1"
+        "/test/scheduler/case-1.test.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -364,9 +367,9 @@
       "id": "mem-hard-19",
       "kind": "memory",
       "title": "catalog decision record 1",
-      "body": "The catalog team's module 1 is internally named **HARD-020-catalog**. Its maintenance window and ownership are local to /packages/catalog/src/module-1; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The catalog team's module 1 is internally named **HARD-020-catalog**. Its maintenance window and ownership are local to /lib/catalog/module-1.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/catalog/src/module-1"
+        "/lib/catalog/module-1.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -375,9 +378,9 @@
       "id": "rule-hard-20",
       "kind": "rule",
       "title": "recommendations boundary rule 1",
-      "body": "Within /packages/recommendations/src/module-1, public adapters must pass through `guardHARD-021-recommendations` before emitting state. This convention is tracked by **HARD-021-recommendations** and does not apply outside this area.",
+      "body": "Within /lib/recommendations/module-1.js, public adapters must pass through `guardHARD-021-recommendations` before emitting state. This convention is tracked by **HARD-021-recommendations** and does not apply outside this area.",
       "node_paths": [
-        "/packages/recommendations/src/module-1"
+        "/lib/recommendations/module-1.js"
       ],
       "priority": "medium",
       "scope_type": "folder",
@@ -388,9 +391,9 @@
       "id": "mem-hard-21",
       "kind": "memory",
       "title": "profiles decision record 1",
-      "body": "The profiles team's module 1 is internally named **HARD-022-profiles**. Its maintenance window and ownership are local to /apps/profiles/src/feature-1; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The profiles team's module 1 is internally named **HARD-022-profiles**. Its maintenance window and ownership are local to /test/profiles/case-1.test.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/apps/profiles/src/feature-1"
+        "/test/profiles/case-1.test.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -402,7 +405,7 @@
       "description": "Release checklist for teams module 1.",
       "body": "1. Run `checkHARD-023-teams`.\n2. Compare the teams snapshot.\n3. Record marker **HARD-023-teams**.\n4. Notify the owning teams channel.",
       "node_paths": [
-        "/packages/teams/src/module-1"
+        "/lib/teams/module-1.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -411,9 +414,9 @@
       "id": "mem-hard-23",
       "kind": "memory",
       "title": "invitations decision record 1",
-      "body": "The invitations team's module 1 is internally named **HARD-024-invitations**. Its maintenance window and ownership are local to /packages/invitations/src/module-1; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The invitations team's module 1 is internally named **HARD-024-invitations**. Its maintenance window and ownership are local to /lib/invitations/module-1.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/invitations/src/module-1"
+        "/lib/invitations/module-1.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -422,9 +425,9 @@
       "id": "mem-hard-24",
       "kind": "memory",
       "title": "search decision record 2",
-      "body": "The search team's module 2 is internally named **HARD-025-search**. Its maintenance window and ownership are local to /apps/search/src/feature-2; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The search team's module 2 is internally named **HARD-025-search**. Its maintenance window and ownership are local to /test/search/case-2.test.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/apps/search/src/feature-2"
+        "/test/search/case-2.test.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -433,9 +436,9 @@
       "id": "rule-hard-25",
       "kind": "rule",
       "title": "notifications boundary rule 2",
-      "body": "Within /packages/notifications/src/module-2, public adapters must pass through `guardHARD-026-notifications` before emitting state. This convention is tracked by **HARD-026-notifications** and does not apply outside this area.",
+      "body": "Within /lib/notifications/module-2.js, public adapters must pass through `guardHARD-026-notifications` before emitting state. This convention is tracked by **HARD-026-notifications** and does not apply outside this area.",
       "node_paths": [
-        "/packages/notifications/src/module-2"
+        "/lib/notifications/module-2.js"
       ],
       "priority": "low",
       "scope_type": "folder",
@@ -446,9 +449,9 @@
       "id": "mem-hard-26",
       "kind": "memory",
       "title": "files decision record 2",
-      "body": "The files team's module 2 is internally named **HARD-027-files**. Its maintenance window and ownership are local to /packages/files/src/module-2; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The files team's module 2 is internally named **HARD-027-files**. Its maintenance window and ownership are local to /lib/files/module-2.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/files/src/module-2"
+        "/lib/files/module-2.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -457,9 +460,9 @@
       "id": "mem-hard-27",
       "kind": "memory",
       "title": "analytics decision record 2",
-      "body": "The analytics team's module 2 is internally named **HARD-028-analytics**. Its maintenance window and ownership are local to /apps/analytics/src/feature-2; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The analytics team's module 2 is internally named **HARD-028-analytics**. Its maintenance window and ownership are local to /test/analytics/case-2.test.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/apps/analytics/src/feature-2"
+        "/test/analytics/case-2.test.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -468,9 +471,9 @@
       "id": "mem-hard-28",
       "kind": "memory",
       "title": "admin decision record 2",
-      "body": "The admin team's module 2 is internally named **HARD-029-admin**. Its maintenance window and ownership are local to /packages/admin/src/module-2; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The admin team's module 2 is internally named **HARD-029-admin**. Its maintenance window and ownership are local to /lib/admin/module-2.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/admin/src/module-2"
+        "/lib/admin/module-2.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -479,9 +482,9 @@
       "id": "mem-hard-29",
       "kind": "memory",
       "title": "mobile decision record 2",
-      "body": "The mobile team's module 2 is internally named **HARD-030-mobile**. Its maintenance window and ownership are local to /packages/mobile/src/module-2; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The mobile team's module 2 is internally named **HARD-030-mobile**. Its maintenance window and ownership are local to /lib/mobile/module-2.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/mobile/src/module-2"
+        "/lib/mobile/module-2.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -490,9 +493,9 @@
       "id": "rule-hard-30",
       "kind": "rule",
       "title": "web boundary rule 2",
-      "body": "Within /apps/web/src/feature-2, public adapters must pass through `guardHARD-031-web` before emitting state. This convention is tracked by **HARD-031-web** and does not apply outside this area.",
+      "body": "Within /test/web/case-2.test.js, public adapters must pass through `guardHARD-031-web` before emitting state. This convention is tracked by **HARD-031-web** and does not apply outside this area.",
       "node_paths": [
-        "/apps/web/src/feature-2"
+        "/test/web/case-2.test.js"
       ],
       "priority": "medium",
       "scope_type": "folder",
@@ -503,9 +506,9 @@
       "id": "mem-hard-31",
       "kind": "memory",
       "title": "design-system decision record 2",
-      "body": "The design-system team's module 2 is internally named **HARD-032-designsystem**. Its maintenance window and ownership are local to /packages/design-system/src/module-2; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The design-system team's module 2 is internally named **HARD-032-designsystem**. Its maintenance window and ownership are local to /lib/design-system/module-2.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/design-system/src/module-2"
+        "/lib/design-system/module-2.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -514,9 +517,9 @@
       "id": "mem-hard-32",
       "kind": "memory",
       "title": "feature-flags decision record 2",
-      "body": "The feature-flags team's module 2 is internally named **HARD-033-featureflags**. Its maintenance window and ownership are local to /packages/feature-flags/src/module-2; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The feature-flags team's module 2 is internally named **HARD-033-featureflags**. Its maintenance window and ownership are local to /lib/feature-flags/module-2.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/feature-flags/src/module-2"
+        "/lib/feature-flags/module-2.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -528,7 +531,7 @@
       "description": "Release checklist for support module 2.",
       "body": "1. Run `checkHARD-034-support`.\n2. Compare the support snapshot.\n3. Record marker **HARD-034-support**.\n4. Notify the owning support channel.",
       "node_paths": [
-        "/apps/support/src/feature-2"
+        "/test/support/case-2.test.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -537,9 +540,9 @@
       "id": "mem-hard-34",
       "kind": "memory",
       "title": "compliance decision record 2",
-      "body": "The compliance team's module 2 is internally named **HARD-035-compliance**. Its maintenance window and ownership are local to /packages/compliance/src/module-2; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The compliance team's module 2 is internally named **HARD-035-compliance**. Its maintenance window and ownership are local to /lib/compliance/module-2.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/compliance/src/module-2"
+        "/lib/compliance/module-2.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -548,9 +551,9 @@
       "id": "rule-hard-35",
       "kind": "rule",
       "title": "imports boundary rule 2",
-      "body": "Within /packages/imports/src/module-2, public adapters must pass through `guardHARD-036-imports` before emitting state. This convention is tracked by **HARD-036-imports** and does not apply outside this area.",
+      "body": "Within /lib/imports/module-2.js, public adapters must pass through `guardHARD-036-imports` before emitting state. This convention is tracked by **HARD-036-imports** and does not apply outside this area.",
       "node_paths": [
-        "/packages/imports/src/module-2"
+        "/lib/imports/module-2.js"
       ],
       "priority": "low",
       "scope_type": "folder",
@@ -561,9 +564,9 @@
       "id": "mem-hard-36",
       "kind": "memory",
       "title": "exports decision record 2",
-      "body": "The exports team's module 2 is internally named **HARD-037-exports**. Its maintenance window and ownership are local to /apps/exports/src/feature-2; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The exports team's module 2 is internally named **HARD-037-exports**. Its maintenance window and ownership are local to /test/exports/case-2.test.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/apps/exports/src/feature-2"
+        "/test/exports/case-2.test.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -572,9 +575,9 @@
       "id": "mem-hard-37",
       "kind": "memory",
       "title": "reporting decision record 2",
-      "body": "The reporting team's module 2 is internally named **HARD-038-reporting**. Its maintenance window and ownership are local to /packages/reporting/src/module-2; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The reporting team's module 2 is internally named **HARD-038-reporting**. Its maintenance window and ownership are local to /lib/reporting/module-2.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/reporting/src/module-2"
+        "/lib/reporting/module-2.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -583,9 +586,9 @@
       "id": "mem-hard-38",
       "kind": "memory",
       "title": "experiments decision record 2",
-      "body": "The experiments team's module 2 is internally named **HARD-039-experiments**. Its maintenance window and ownership are local to /packages/experiments/src/module-2; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The experiments team's module 2 is internally named **HARD-039-experiments**. Its maintenance window and ownership are local to /lib/experiments/module-2.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/experiments/src/module-2"
+        "/lib/experiments/module-2.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -594,9 +597,9 @@
       "id": "mem-hard-39",
       "kind": "memory",
       "title": "localization decision record 2",
-      "body": "The localization team's module 2 is internally named **HARD-040-localization**. Its maintenance window and ownership are local to /apps/localization/src/feature-2; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The localization team's module 2 is internally named **HARD-040-localization**. Its maintenance window and ownership are local to /test/localization/case-2.test.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/apps/localization/src/feature-2"
+        "/test/localization/case-2.test.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -605,9 +608,9 @@
       "id": "rule-hard-40",
       "kind": "rule",
       "title": "onboarding boundary rule 2",
-      "body": "Within /packages/onboarding/src/module-2, public adapters must pass through `guardHARD-041-onboarding` before emitting state. This convention is tracked by **HARD-041-onboarding** and does not apply outside this area.",
+      "body": "Within /lib/onboarding/module-2.js, public adapters must pass through `guardHARD-041-onboarding` before emitting state. This convention is tracked by **HARD-041-onboarding** and does not apply outside this area.",
       "node_paths": [
-        "/packages/onboarding/src/module-2"
+        "/lib/onboarding/module-2.js"
       ],
       "priority": "medium",
       "scope_type": "folder",
@@ -618,9 +621,9 @@
       "id": "mem-hard-41",
       "kind": "memory",
       "title": "audit decision record 2",
-      "body": "The audit team's module 2 is internally named **HARD-042-audit**. Its maintenance window and ownership are local to /packages/audit/src/module-2; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The audit team's module 2 is internally named **HARD-042-audit**. Its maintenance window and ownership are local to /lib/audit/module-2.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/audit/src/module-2"
+        "/lib/audit/module-2.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -629,9 +632,9 @@
       "id": "mem-hard-42",
       "kind": "memory",
       "title": "scheduler decision record 2",
-      "body": "The scheduler team's module 2 is internally named **HARD-043-scheduler**. Its maintenance window and ownership are local to /apps/scheduler/src/feature-2; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The scheduler team's module 2 is internally named **HARD-043-scheduler**. Its maintenance window and ownership are local to /test/scheduler/case-2.test.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/apps/scheduler/src/feature-2"
+        "/test/scheduler/case-2.test.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -640,9 +643,9 @@
       "id": "mem-hard-43",
       "kind": "memory",
       "title": "catalog decision record 2",
-      "body": "The catalog team's module 2 is internally named **HARD-044-catalog**. Its maintenance window and ownership are local to /packages/catalog/src/module-2; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The catalog team's module 2 is internally named **HARD-044-catalog**. Its maintenance window and ownership are local to /lib/catalog/module-2.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/catalog/src/module-2"
+        "/lib/catalog/module-2.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -654,7 +657,7 @@
       "description": "Release checklist for recommendations module 2.",
       "body": "1. Run `checkHARD-045-recommendations`.\n2. Compare the recommendations snapshot.\n3. Record marker **HARD-045-recommendations**.\n4. Notify the owning recommendations channel.",
       "node_paths": [
-        "/packages/recommendations/src/module-2"
+        "/lib/recommendations/module-2.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -663,9 +666,9 @@
       "id": "rule-hard-45",
       "kind": "rule",
       "title": "profiles boundary rule 2",
-      "body": "Within /apps/profiles/src/feature-2, public adapters must pass through `guardHARD-046-profiles` before emitting state. This convention is tracked by **HARD-046-profiles** and does not apply outside this area.",
+      "body": "Within /test/profiles/case-2.test.js, public adapters must pass through `guardHARD-046-profiles` before emitting state. This convention is tracked by **HARD-046-profiles** and does not apply outside this area.",
       "node_paths": [
-        "/apps/profiles/src/feature-2"
+        "/test/profiles/case-2.test.js"
       ],
       "priority": "low",
       "scope_type": "folder",
@@ -676,9 +679,9 @@
       "id": "mem-hard-46",
       "kind": "memory",
       "title": "teams decision record 2",
-      "body": "The teams team's module 2 is internally named **HARD-047-teams**. Its maintenance window and ownership are local to /packages/teams/src/module-2; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The teams team's module 2 is internally named **HARD-047-teams**. Its maintenance window and ownership are local to /lib/teams/module-2.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/teams/src/module-2"
+        "/lib/teams/module-2.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -687,9 +690,9 @@
       "id": "mem-hard-47",
       "kind": "memory",
       "title": "invitations decision record 2",
-      "body": "The invitations team's module 2 is internally named **HARD-048-invitations**. Its maintenance window and ownership are local to /packages/invitations/src/module-2; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The invitations team's module 2 is internally named **HARD-048-invitations**. Its maintenance window and ownership are local to /lib/invitations/module-2.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/invitations/src/module-2"
+        "/lib/invitations/module-2.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -698,9 +701,9 @@
       "id": "mem-hard-48",
       "kind": "memory",
       "title": "search decision record 3",
-      "body": "The search team's module 3 is internally named **HARD-049-search**. Its maintenance window and ownership are local to /apps/search/src/feature-3; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The search team's module 3 is internally named **HARD-049-search**. Its maintenance window and ownership are local to /test/search/case-3.test.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/apps/search/src/feature-3"
+        "/test/search/case-3.test.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -709,9 +712,9 @@
       "id": "mem-hard-49",
       "kind": "memory",
       "title": "notifications decision record 3",
-      "body": "The notifications team's module 3 is internally named **HARD-050-notifications**. Its maintenance window and ownership are local to /packages/notifications/src/module-3; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The notifications team's module 3 is internally named **HARD-050-notifications**. Its maintenance window and ownership are local to /lib/notifications/module-3.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/notifications/src/module-3"
+        "/lib/notifications/module-3.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -720,9 +723,9 @@
       "id": "rule-hard-50",
       "kind": "rule",
       "title": "files boundary rule 3",
-      "body": "Within /packages/files/src/module-3, public adapters must pass through `guardHARD-051-files` before emitting state. This convention is tracked by **HARD-051-files** and does not apply outside this area.",
+      "body": "Within /lib/files/module-3.js, public adapters must pass through `guardHARD-051-files` before emitting state. This convention is tracked by **HARD-051-files** and does not apply outside this area.",
       "node_paths": [
-        "/packages/files/src/module-3"
+        "/lib/files/module-3.js"
       ],
       "priority": "medium",
       "scope_type": "folder",
@@ -733,9 +736,9 @@
       "id": "mem-hard-51",
       "kind": "memory",
       "title": "analytics decision record 3",
-      "body": "The analytics team's module 3 is internally named **HARD-052-analytics**. Its maintenance window and ownership are local to /apps/analytics/src/feature-3; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The analytics team's module 3 is internally named **HARD-052-analytics**. Its maintenance window and ownership are local to /test/analytics/case-3.test.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/apps/analytics/src/feature-3"
+        "/test/analytics/case-3.test.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -744,9 +747,9 @@
       "id": "mem-hard-52",
       "kind": "memory",
       "title": "admin decision record 3",
-      "body": "The admin team's module 3 is internally named **HARD-053-admin**. Its maintenance window and ownership are local to /packages/admin/src/module-3; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The admin team's module 3 is internally named **HARD-053-admin**. Its maintenance window and ownership are local to /lib/admin/module-3.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/admin/src/module-3"
+        "/lib/admin/module-3.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -755,9 +758,9 @@
       "id": "mem-hard-53",
       "kind": "memory",
       "title": "mobile decision record 3",
-      "body": "The mobile team's module 3 is internally named **HARD-054-mobile**. Its maintenance window and ownership are local to /packages/mobile/src/module-3; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The mobile team's module 3 is internally named **HARD-054-mobile**. Its maintenance window and ownership are local to /lib/mobile/module-3.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/mobile/src/module-3"
+        "/lib/mobile/module-3.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -766,9 +769,9 @@
       "id": "mem-hard-54",
       "kind": "memory",
       "title": "web decision record 3",
-      "body": "The web team's module 3 is internally named **HARD-055-web**. Its maintenance window and ownership are local to /apps/web/src/feature-3; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The web team's module 3 is internally named **HARD-055-web**. Its maintenance window and ownership are local to /test/web/case-3.test.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/apps/web/src/feature-3"
+        "/test/web/case-3.test.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -780,7 +783,7 @@
       "description": "Release checklist for design-system module 3.",
       "body": "1. Run `checkHARD-056-designsystem`.\n2. Compare the design-system snapshot.\n3. Record marker **HARD-056-designsystem**.\n4. Notify the owning design-system channel.",
       "node_paths": [
-        "/packages/design-system/src/module-3"
+        "/lib/design-system/module-3.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -789,9 +792,9 @@
       "id": "mem-hard-56",
       "kind": "memory",
       "title": "feature-flags decision record 3",
-      "body": "The feature-flags team's module 3 is internally named **HARD-057-featureflags**. Its maintenance window and ownership are local to /packages/feature-flags/src/module-3; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The feature-flags team's module 3 is internally named **HARD-057-featureflags**. Its maintenance window and ownership are local to /lib/feature-flags/module-3.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/feature-flags/src/module-3"
+        "/lib/feature-flags/module-3.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -800,9 +803,9 @@
       "id": "mem-hard-57",
       "kind": "memory",
       "title": "support decision record 3",
-      "body": "The support team's module 3 is internally named **HARD-058-support**. Its maintenance window and ownership are local to /apps/support/src/feature-3; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The support team's module 3 is internally named **HARD-058-support**. Its maintenance window and ownership are local to /test/support/case-3.test.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/apps/support/src/feature-3"
+        "/test/support/case-3.test.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -811,9 +814,9 @@
       "id": "mem-hard-58",
       "kind": "memory",
       "title": "compliance decision record 3",
-      "body": "The compliance team's module 3 is internally named **HARD-059-compliance**. Its maintenance window and ownership are local to /packages/compliance/src/module-3; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The compliance team's module 3 is internally named **HARD-059-compliance**. Its maintenance window and ownership are local to /lib/compliance/module-3.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/compliance/src/module-3"
+        "/lib/compliance/module-3.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -822,9 +825,9 @@
       "id": "mem-hard-59",
       "kind": "memory",
       "title": "imports decision record 3",
-      "body": "The imports team's module 3 is internally named **HARD-060-imports**. Its maintenance window and ownership are local to /packages/imports/src/module-3; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The imports team's module 3 is internally named **HARD-060-imports**. Its maintenance window and ownership are local to /lib/imports/module-3.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/imports/src/module-3"
+        "/lib/imports/module-3.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -833,9 +836,9 @@
       "id": "rule-hard-60",
       "kind": "rule",
       "title": "exports boundary rule 3",
-      "body": "Within /apps/exports/src/feature-3, public adapters must pass through `guardHARD-061-exports` before emitting state. This convention is tracked by **HARD-061-exports** and does not apply outside this area.",
+      "body": "Within /test/exports/case-3.test.js, public adapters must pass through `guardHARD-061-exports` before emitting state. This convention is tracked by **HARD-061-exports** and does not apply outside this area.",
       "node_paths": [
-        "/apps/exports/src/feature-3"
+        "/test/exports/case-3.test.js"
       ],
       "priority": "medium",
       "scope_type": "folder",
@@ -846,9 +849,9 @@
       "id": "mem-hard-61",
       "kind": "memory",
       "title": "reporting decision record 3",
-      "body": "The reporting team's module 3 is internally named **HARD-062-reporting**. Its maintenance window and ownership are local to /packages/reporting/src/module-3; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The reporting team's module 3 is internally named **HARD-062-reporting**. Its maintenance window and ownership are local to /lib/reporting/module-3.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/reporting/src/module-3"
+        "/lib/reporting/module-3.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -857,9 +860,9 @@
       "id": "mem-hard-62",
       "kind": "memory",
       "title": "experiments decision record 3",
-      "body": "The experiments team's module 3 is internally named **HARD-063-experiments**. Its maintenance window and ownership are local to /packages/experiments/src/module-3; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The experiments team's module 3 is internally named **HARD-063-experiments**. Its maintenance window and ownership are local to /lib/experiments/module-3.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/experiments/src/module-3"
+        "/lib/experiments/module-3.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -868,9 +871,9 @@
       "id": "mem-hard-63",
       "kind": "memory",
       "title": "localization decision record 3",
-      "body": "The localization team's module 3 is internally named **HARD-064-localization**. Its maintenance window and ownership are local to /apps/localization/src/feature-3; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The localization team's module 3 is internally named **HARD-064-localization**. Its maintenance window and ownership are local to /test/localization/case-3.test.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/apps/localization/src/feature-3"
+        "/test/localization/case-3.test.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -879,9 +882,9 @@
       "id": "mem-hard-64",
       "kind": "memory",
       "title": "onboarding decision record 3",
-      "body": "The onboarding team's module 3 is internally named **HARD-065-onboarding**. Its maintenance window and ownership are local to /packages/onboarding/src/module-3; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The onboarding team's module 3 is internally named **HARD-065-onboarding**. Its maintenance window and ownership are local to /lib/onboarding/module-3.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/onboarding/src/module-3"
+        "/lib/onboarding/module-3.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -890,9 +893,9 @@
       "id": "rule-hard-65",
       "kind": "rule",
       "title": "audit boundary rule 3",
-      "body": "Within /packages/audit/src/module-3, public adapters must pass through `guardHARD-066-audit` before emitting state. This convention is tracked by **HARD-066-audit** and does not apply outside this area.",
+      "body": "Within /lib/audit/module-3.js, public adapters must pass through `guardHARD-066-audit` before emitting state. This convention is tracked by **HARD-066-audit** and does not apply outside this area.",
       "node_paths": [
-        "/packages/audit/src/module-3"
+        "/lib/audit/module-3.js"
       ],
       "priority": "low",
       "scope_type": "folder",
@@ -906,7 +909,7 @@
       "description": "Release checklist for scheduler module 3.",
       "body": "1. Run `checkHARD-067-scheduler`.\n2. Compare the scheduler snapshot.\n3. Record marker **HARD-067-scheduler**.\n4. Notify the owning scheduler channel.",
       "node_paths": [
-        "/apps/scheduler/src/feature-3"
+        "/test/scheduler/case-3.test.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -915,9 +918,9 @@
       "id": "mem-hard-67",
       "kind": "memory",
       "title": "catalog decision record 3",
-      "body": "The catalog team's module 3 is internally named **HARD-068-catalog**. Its maintenance window and ownership are local to /packages/catalog/src/module-3; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The catalog team's module 3 is internally named **HARD-068-catalog**. Its maintenance window and ownership are local to /lib/catalog/module-3.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/catalog/src/module-3"
+        "/lib/catalog/module-3.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -926,9 +929,9 @@
       "id": "mem-hard-68",
       "kind": "memory",
       "title": "recommendations decision record 3",
-      "body": "The recommendations team's module 3 is internally named **HARD-069-recommendations**. Its maintenance window and ownership are local to /packages/recommendations/src/module-3; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The recommendations team's module 3 is internally named **HARD-069-recommendations**. Its maintenance window and ownership are local to /lib/recommendations/module-3.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/recommendations/src/module-3"
+        "/lib/recommendations/module-3.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -937,9 +940,9 @@
       "id": "mem-hard-69",
       "kind": "memory",
       "title": "profiles decision record 3",
-      "body": "The profiles team's module 3 is internally named **HARD-070-profiles**. Its maintenance window and ownership are local to /apps/profiles/src/feature-3; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The profiles team's module 3 is internally named **HARD-070-profiles**. Its maintenance window and ownership are local to /test/profiles/case-3.test.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/apps/profiles/src/feature-3"
+        "/test/profiles/case-3.test.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -948,9 +951,9 @@
       "id": "rule-hard-70",
       "kind": "rule",
       "title": "teams boundary rule 3",
-      "body": "Within /packages/teams/src/module-3, public adapters must pass through `guardHARD-071-teams` before emitting state. This convention is tracked by **HARD-071-teams** and does not apply outside this area.",
+      "body": "Within /lib/teams/module-3.js, public adapters must pass through `guardHARD-071-teams` before emitting state. This convention is tracked by **HARD-071-teams** and does not apply outside this area.",
       "node_paths": [
-        "/packages/teams/src/module-3"
+        "/lib/teams/module-3.js"
       ],
       "priority": "medium",
       "scope_type": "folder",
@@ -961,9 +964,9 @@
       "id": "mem-hard-71",
       "kind": "memory",
       "title": "invitations decision record 3",
-      "body": "The invitations team's module 3 is internally named **HARD-072-invitations**. Its maintenance window and ownership are local to /packages/invitations/src/module-3; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The invitations team's module 3 is internally named **HARD-072-invitations**. Its maintenance window and ownership are local to /lib/invitations/module-3.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/invitations/src/module-3"
+        "/lib/invitations/module-3.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -972,9 +975,9 @@
       "id": "mem-hard-72",
       "kind": "memory",
       "title": "search decision record 4",
-      "body": "The search team's module 4 is internally named **HARD-073-search**. Its maintenance window and ownership are local to /apps/search/src/feature-4; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The search team's module 4 is internally named **HARD-073-search**. Its maintenance window and ownership are local to /test/search/case-4.test.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/apps/search/src/feature-4"
+        "/test/search/case-4.test.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -983,9 +986,9 @@
       "id": "mem-hard-73",
       "kind": "memory",
       "title": "notifications decision record 4",
-      "body": "The notifications team's module 4 is internally named **HARD-074-notifications**. Its maintenance window and ownership are local to /packages/notifications/src/module-4; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The notifications team's module 4 is internally named **HARD-074-notifications**. Its maintenance window and ownership are local to /lib/notifications/module-4.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/notifications/src/module-4"
+        "/lib/notifications/module-4.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -994,9 +997,9 @@
       "id": "mem-hard-74",
       "kind": "memory",
       "title": "files decision record 4",
-      "body": "The files team's module 4 is internally named **HARD-075-files**. Its maintenance window and ownership are local to /packages/files/src/module-4; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The files team's module 4 is internally named **HARD-075-files**. Its maintenance window and ownership are local to /lib/files/module-4.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/files/src/module-4"
+        "/lib/files/module-4.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1005,9 +1008,9 @@
       "id": "rule-hard-75",
       "kind": "rule",
       "title": "analytics boundary rule 4",
-      "body": "Within /apps/analytics/src/feature-4, public adapters must pass through `guardHARD-076-analytics` before emitting state. This convention is tracked by **HARD-076-analytics** and does not apply outside this area.",
+      "body": "Within /test/analytics/case-4.test.js, public adapters must pass through `guardHARD-076-analytics` before emitting state. This convention is tracked by **HARD-076-analytics** and does not apply outside this area.",
       "node_paths": [
-        "/apps/analytics/src/feature-4"
+        "/test/analytics/case-4.test.js"
       ],
       "priority": "low",
       "scope_type": "folder",
@@ -1018,9 +1021,9 @@
       "id": "mem-hard-76",
       "kind": "memory",
       "title": "admin decision record 4",
-      "body": "The admin team's module 4 is internally named **HARD-077-admin**. Its maintenance window and ownership are local to /packages/admin/src/module-4; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The admin team's module 4 is internally named **HARD-077-admin**. Its maintenance window and ownership are local to /lib/admin/module-4.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/admin/src/module-4"
+        "/lib/admin/module-4.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1032,7 +1035,7 @@
       "description": "Release checklist for mobile module 4.",
       "body": "1. Run `checkHARD-078-mobile`.\n2. Compare the mobile snapshot.\n3. Record marker **HARD-078-mobile**.\n4. Notify the owning mobile channel.",
       "node_paths": [
-        "/packages/mobile/src/module-4"
+        "/lib/mobile/module-4.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1041,9 +1044,9 @@
       "id": "mem-hard-78",
       "kind": "memory",
       "title": "web decision record 4",
-      "body": "The web team's module 4 is internally named **HARD-079-web**. Its maintenance window and ownership are local to /apps/web/src/feature-4; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The web team's module 4 is internally named **HARD-079-web**. Its maintenance window and ownership are local to /test/web/case-4.test.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/apps/web/src/feature-4"
+        "/test/web/case-4.test.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1052,9 +1055,9 @@
       "id": "mem-hard-79",
       "kind": "memory",
       "title": "design-system decision record 4",
-      "body": "The design-system team's module 4 is internally named **HARD-080-designsystem**. Its maintenance window and ownership are local to /packages/design-system/src/module-4; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The design-system team's module 4 is internally named **HARD-080-designsystem**. Its maintenance window and ownership are local to /lib/design-system/module-4.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/design-system/src/module-4"
+        "/lib/design-system/module-4.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1063,9 +1066,9 @@
       "id": "rule-hard-80",
       "kind": "rule",
       "title": "feature-flags boundary rule 4",
-      "body": "Within /packages/feature-flags/src/module-4, public adapters must pass through `guardHARD-081-featureflags` before emitting state. This convention is tracked by **HARD-081-featureflags** and does not apply outside this area.",
+      "body": "Within /lib/feature-flags/module-4.js, public adapters must pass through `guardHARD-081-featureflags` before emitting state. This convention is tracked by **HARD-081-featureflags** and does not apply outside this area.",
       "node_paths": [
-        "/packages/feature-flags/src/module-4"
+        "/lib/feature-flags/module-4.js"
       ],
       "priority": "medium",
       "scope_type": "folder",
@@ -1076,9 +1079,9 @@
       "id": "mem-hard-81",
       "kind": "memory",
       "title": "support decision record 4",
-      "body": "The support team's module 4 is internally named **HARD-082-support**. Its maintenance window and ownership are local to /apps/support/src/feature-4; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The support team's module 4 is internally named **HARD-082-support**. Its maintenance window and ownership are local to /test/support/case-4.test.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/apps/support/src/feature-4"
+        "/test/support/case-4.test.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1087,9 +1090,9 @@
       "id": "mem-hard-82",
       "kind": "memory",
       "title": "compliance decision record 4",
-      "body": "The compliance team's module 4 is internally named **HARD-083-compliance**. Its maintenance window and ownership are local to /packages/compliance/src/module-4; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The compliance team's module 4 is internally named **HARD-083-compliance**. Its maintenance window and ownership are local to /lib/compliance/module-4.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/compliance/src/module-4"
+        "/lib/compliance/module-4.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1098,9 +1101,9 @@
       "id": "mem-hard-83",
       "kind": "memory",
       "title": "imports decision record 4",
-      "body": "The imports team's module 4 is internally named **HARD-084-imports**. Its maintenance window and ownership are local to /packages/imports/src/module-4; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The imports team's module 4 is internally named **HARD-084-imports**. Its maintenance window and ownership are local to /lib/imports/module-4.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/imports/src/module-4"
+        "/lib/imports/module-4.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1109,9 +1112,9 @@
       "id": "mem-hard-84",
       "kind": "memory",
       "title": "exports decision record 4",
-      "body": "The exports team's module 4 is internally named **HARD-085-exports**. Its maintenance window and ownership are local to /apps/exports/src/feature-4; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The exports team's module 4 is internally named **HARD-085-exports**. Its maintenance window and ownership are local to /test/exports/case-4.test.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/apps/exports/src/feature-4"
+        "/test/exports/case-4.test.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1120,9 +1123,9 @@
       "id": "rule-hard-85",
       "kind": "rule",
       "title": "reporting boundary rule 4",
-      "body": "Within /packages/reporting/src/module-4, public adapters must pass through `guardHARD-086-reporting` before emitting state. This convention is tracked by **HARD-086-reporting** and does not apply outside this area.",
+      "body": "Within /lib/reporting/module-4.js, public adapters must pass through `guardHARD-086-reporting` before emitting state. This convention is tracked by **HARD-086-reporting** and does not apply outside this area.",
       "node_paths": [
-        "/packages/reporting/src/module-4"
+        "/lib/reporting/module-4.js"
       ],
       "priority": "low",
       "scope_type": "folder",
@@ -1133,9 +1136,9 @@
       "id": "mem-hard-86",
       "kind": "memory",
       "title": "experiments decision record 4",
-      "body": "The experiments team's module 4 is internally named **HARD-087-experiments**. Its maintenance window and ownership are local to /packages/experiments/src/module-4; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The experiments team's module 4 is internally named **HARD-087-experiments**. Its maintenance window and ownership are local to /lib/experiments/module-4.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/experiments/src/module-4"
+        "/lib/experiments/module-4.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1144,9 +1147,9 @@
       "id": "mem-hard-87",
       "kind": "memory",
       "title": "localization decision record 4",
-      "body": "The localization team's module 4 is internally named **HARD-088-localization**. Its maintenance window and ownership are local to /apps/localization/src/feature-4; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The localization team's module 4 is internally named **HARD-088-localization**. Its maintenance window and ownership are local to /test/localization/case-4.test.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/apps/localization/src/feature-4"
+        "/test/localization/case-4.test.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1158,7 +1161,7 @@
       "description": "Release checklist for onboarding module 4.",
       "body": "1. Run `checkHARD-089-onboarding`.\n2. Compare the onboarding snapshot.\n3. Record marker **HARD-089-onboarding**.\n4. Notify the owning onboarding channel.",
       "node_paths": [
-        "/packages/onboarding/src/module-4"
+        "/lib/onboarding/module-4.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1167,9 +1170,9 @@
       "id": "mem-hard-89",
       "kind": "memory",
       "title": "audit decision record 4",
-      "body": "The audit team's module 4 is internally named **HARD-090-audit**. Its maintenance window and ownership are local to /packages/audit/src/module-4; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The audit team's module 4 is internally named **HARD-090-audit**. Its maintenance window and ownership are local to /lib/audit/module-4.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/audit/src/module-4"
+        "/lib/audit/module-4.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1178,9 +1181,9 @@
       "id": "rule-hard-90",
       "kind": "rule",
       "title": "scheduler boundary rule 4",
-      "body": "Within /apps/scheduler/src/feature-4, public adapters must pass through `guardHARD-091-scheduler` before emitting state. This convention is tracked by **HARD-091-scheduler** and does not apply outside this area.",
+      "body": "Within /test/scheduler/case-4.test.js, public adapters must pass through `guardHARD-091-scheduler` before emitting state. This convention is tracked by **HARD-091-scheduler** and does not apply outside this area.",
       "node_paths": [
-        "/apps/scheduler/src/feature-4"
+        "/test/scheduler/case-4.test.js"
       ],
       "priority": "medium",
       "scope_type": "folder",
@@ -1191,9 +1194,9 @@
       "id": "mem-hard-91",
       "kind": "memory",
       "title": "catalog decision record 4",
-      "body": "The catalog team's module 4 is internally named **HARD-092-catalog**. Its maintenance window and ownership are local to /packages/catalog/src/module-4; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The catalog team's module 4 is internally named **HARD-092-catalog**. Its maintenance window and ownership are local to /lib/catalog/module-4.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/catalog/src/module-4"
+        "/lib/catalog/module-4.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1202,9 +1205,9 @@
       "id": "mem-hard-92",
       "kind": "memory",
       "title": "recommendations decision record 4",
-      "body": "The recommendations team's module 4 is internally named **HARD-093-recommendations**. Its maintenance window and ownership are local to /packages/recommendations/src/module-4; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The recommendations team's module 4 is internally named **HARD-093-recommendations**. Its maintenance window and ownership are local to /lib/recommendations/module-4.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/recommendations/src/module-4"
+        "/lib/recommendations/module-4.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1213,9 +1216,9 @@
       "id": "mem-hard-93",
       "kind": "memory",
       "title": "profiles decision record 4",
-      "body": "The profiles team's module 4 is internally named **HARD-094-profiles**. Its maintenance window and ownership are local to /apps/profiles/src/feature-4; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The profiles team's module 4 is internally named **HARD-094-profiles**. Its maintenance window and ownership are local to /test/profiles/case-4.test.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/apps/profiles/src/feature-4"
+        "/test/profiles/case-4.test.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1224,9 +1227,9 @@
       "id": "mem-hard-94",
       "kind": "memory",
       "title": "teams decision record 4",
-      "body": "The teams team's module 4 is internally named **HARD-095-teams**. Its maintenance window and ownership are local to /packages/teams/src/module-4; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The teams team's module 4 is internally named **HARD-095-teams**. Its maintenance window and ownership are local to /lib/teams/module-4.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/teams/src/module-4"
+        "/lib/teams/module-4.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1235,9 +1238,9 @@
       "id": "rule-hard-95",
       "kind": "rule",
       "title": "invitations boundary rule 4",
-      "body": "Within /packages/invitations/src/module-4, public adapters must pass through `guardHARD-096-invitations` before emitting state. This convention is tracked by **HARD-096-invitations** and does not apply outside this area.",
+      "body": "Within /lib/invitations/module-4.js, public adapters must pass through `guardHARD-096-invitations` before emitting state. This convention is tracked by **HARD-096-invitations** and does not apply outside this area.",
       "node_paths": [
-        "/packages/invitations/src/module-4"
+        "/lib/invitations/module-4.js"
       ],
       "priority": "low",
       "scope_type": "folder",
@@ -1248,9 +1251,9 @@
       "id": "mem-hard-96",
       "kind": "memory",
       "title": "search decision record 5",
-      "body": "The search team's module 5 is internally named **HARD-097-search**. Its maintenance window and ownership are local to /apps/search/src/feature-5; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The search team's module 5 is internally named **HARD-097-search**. Its maintenance window and ownership are local to /test/search/case-5.test.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/apps/search/src/feature-5"
+        "/test/search/case-5.test.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1259,9 +1262,9 @@
       "id": "mem-hard-97",
       "kind": "memory",
       "title": "notifications decision record 5",
-      "body": "The notifications team's module 5 is internally named **HARD-098-notifications**. Its maintenance window and ownership are local to /packages/notifications/src/module-5; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The notifications team's module 5 is internally named **HARD-098-notifications**. Its maintenance window and ownership are local to /lib/notifications/module-5.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/notifications/src/module-5"
+        "/lib/notifications/module-5.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1270,9 +1273,9 @@
       "id": "mem-hard-98",
       "kind": "memory",
       "title": "files decision record 5",
-      "body": "The files team's module 5 is internally named **HARD-099-files**. Its maintenance window and ownership are local to /packages/files/src/module-5; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The files team's module 5 is internally named **HARD-099-files**. Its maintenance window and ownership are local to /lib/files/module-5.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/files/src/module-5"
+        "/lib/files/module-5.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1284,7 +1287,7 @@
       "description": "Release checklist for analytics module 5.",
       "body": "1. Run `checkHARD-100-analytics`.\n2. Compare the analytics snapshot.\n3. Record marker **HARD-100-analytics**.\n4. Notify the owning analytics channel.",
       "node_paths": [
-        "/apps/analytics/src/feature-5"
+        "/test/analytics/case-5.test.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1293,9 +1296,9 @@
       "id": "rule-hard-100",
       "kind": "rule",
       "title": "admin boundary rule 5",
-      "body": "Within /packages/admin/src/module-5, public adapters must pass through `guardHARD-101-admin` before emitting state. This convention is tracked by **HARD-101-admin** and does not apply outside this area.",
+      "body": "Within /lib/admin/module-5.js, public adapters must pass through `guardHARD-101-admin` before emitting state. This convention is tracked by **HARD-101-admin** and does not apply outside this area.",
       "node_paths": [
-        "/packages/admin/src/module-5"
+        "/lib/admin/module-5.js"
       ],
       "priority": "medium",
       "scope_type": "folder",
@@ -1306,9 +1309,9 @@
       "id": "mem-hard-101",
       "kind": "memory",
       "title": "mobile decision record 5",
-      "body": "The mobile team's module 5 is internally named **HARD-102-mobile**. Its maintenance window and ownership are local to /packages/mobile/src/module-5; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The mobile team's module 5 is internally named **HARD-102-mobile**. Its maintenance window and ownership are local to /lib/mobile/module-5.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/mobile/src/module-5"
+        "/lib/mobile/module-5.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1317,9 +1320,9 @@
       "id": "mem-hard-102",
       "kind": "memory",
       "title": "web decision record 5",
-      "body": "The web team's module 5 is internally named **HARD-103-web**. Its maintenance window and ownership are local to /apps/web/src/feature-5; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The web team's module 5 is internally named **HARD-103-web**. Its maintenance window and ownership are local to /test/web/case-5.test.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/apps/web/src/feature-5"
+        "/test/web/case-5.test.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1328,9 +1331,9 @@
       "id": "mem-hard-103",
       "kind": "memory",
       "title": "design-system decision record 5",
-      "body": "The design-system team's module 5 is internally named **HARD-104-designsystem**. Its maintenance window and ownership are local to /packages/design-system/src/module-5; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The design-system team's module 5 is internally named **HARD-104-designsystem**. Its maintenance window and ownership are local to /lib/design-system/module-5.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/design-system/src/module-5"
+        "/lib/design-system/module-5.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1339,9 +1342,9 @@
       "id": "mem-hard-104",
       "kind": "memory",
       "title": "feature-flags decision record 5",
-      "body": "The feature-flags team's module 5 is internally named **HARD-105-featureflags**. Its maintenance window and ownership are local to /packages/feature-flags/src/module-5; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The feature-flags team's module 5 is internally named **HARD-105-featureflags**. Its maintenance window and ownership are local to /lib/feature-flags/module-5.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/feature-flags/src/module-5"
+        "/lib/feature-flags/module-5.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1350,9 +1353,9 @@
       "id": "rule-hard-105",
       "kind": "rule",
       "title": "support boundary rule 5",
-      "body": "Within /apps/support/src/feature-5, public adapters must pass through `guardHARD-106-support` before emitting state. This convention is tracked by **HARD-106-support** and does not apply outside this area.",
+      "body": "Within /test/support/case-5.test.js, public adapters must pass through `guardHARD-106-support` before emitting state. This convention is tracked by **HARD-106-support** and does not apply outside this area.",
       "node_paths": [
-        "/apps/support/src/feature-5"
+        "/test/support/case-5.test.js"
       ],
       "priority": "low",
       "scope_type": "folder",
@@ -1363,9 +1366,9 @@
       "id": "mem-hard-106",
       "kind": "memory",
       "title": "compliance decision record 5",
-      "body": "The compliance team's module 5 is internally named **HARD-107-compliance**. Its maintenance window and ownership are local to /packages/compliance/src/module-5; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The compliance team's module 5 is internally named **HARD-107-compliance**. Its maintenance window and ownership are local to /lib/compliance/module-5.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/compliance/src/module-5"
+        "/lib/compliance/module-5.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1374,9 +1377,9 @@
       "id": "mem-hard-107",
       "kind": "memory",
       "title": "imports decision record 5",
-      "body": "The imports team's module 5 is internally named **HARD-108-imports**. Its maintenance window and ownership are local to /packages/imports/src/module-5; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The imports team's module 5 is internally named **HARD-108-imports**. Its maintenance window and ownership are local to /lib/imports/module-5.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/imports/src/module-5"
+        "/lib/imports/module-5.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1385,9 +1388,9 @@
       "id": "mem-hard-108",
       "kind": "memory",
       "title": "exports decision record 5",
-      "body": "The exports team's module 5 is internally named **HARD-109-exports**. Its maintenance window and ownership are local to /apps/exports/src/feature-5; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The exports team's module 5 is internally named **HARD-109-exports**. Its maintenance window and ownership are local to /test/exports/case-5.test.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/apps/exports/src/feature-5"
+        "/test/exports/case-5.test.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1396,9 +1399,9 @@
       "id": "mem-hard-109",
       "kind": "memory",
       "title": "reporting decision record 5",
-      "body": "The reporting team's module 5 is internally named **HARD-110-reporting**. Its maintenance window and ownership are local to /packages/reporting/src/module-5; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The reporting team's module 5 is internally named **HARD-110-reporting**. Its maintenance window and ownership are local to /lib/reporting/module-5.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/reporting/src/module-5"
+        "/lib/reporting/module-5.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1410,7 +1413,7 @@
       "description": "Release checklist for experiments module 5.",
       "body": "1. Run `checkHARD-111-experiments`.\n2. Compare the experiments snapshot.\n3. Record marker **HARD-111-experiments**.\n4. Notify the owning experiments channel.",
       "node_paths": [
-        "/packages/experiments/src/module-5"
+        "/lib/experiments/module-5.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1419,9 +1422,9 @@
       "id": "mem-hard-111",
       "kind": "memory",
       "title": "localization decision record 5",
-      "body": "The localization team's module 5 is internally named **HARD-112-localization**. Its maintenance window and ownership are local to /apps/localization/src/feature-5; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The localization team's module 5 is internally named **HARD-112-localization**. Its maintenance window and ownership are local to /test/localization/case-5.test.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/apps/localization/src/feature-5"
+        "/test/localization/case-5.test.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1430,9 +1433,9 @@
       "id": "mem-hard-112",
       "kind": "memory",
       "title": "onboarding decision record 5",
-      "body": "The onboarding team's module 5 is internally named **HARD-113-onboarding**. Its maintenance window and ownership are local to /packages/onboarding/src/module-5; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The onboarding team's module 5 is internally named **HARD-113-onboarding**. Its maintenance window and ownership are local to /lib/onboarding/module-5.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/onboarding/src/module-5"
+        "/lib/onboarding/module-5.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1441,9 +1444,9 @@
       "id": "mem-hard-113",
       "kind": "memory",
       "title": "audit decision record 5",
-      "body": "The audit team's module 5 is internally named **HARD-114-audit**. Its maintenance window and ownership are local to /packages/audit/src/module-5; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The audit team's module 5 is internally named **HARD-114-audit**. Its maintenance window and ownership are local to /lib/audit/module-5.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/audit/src/module-5"
+        "/lib/audit/module-5.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1452,9 +1455,9 @@
       "id": "mem-hard-114",
       "kind": "memory",
       "title": "scheduler decision record 5",
-      "body": "The scheduler team's module 5 is internally named **HARD-115-scheduler**. Its maintenance window and ownership are local to /apps/scheduler/src/feature-5; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The scheduler team's module 5 is internally named **HARD-115-scheduler**. Its maintenance window and ownership are local to /test/scheduler/case-5.test.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/apps/scheduler/src/feature-5"
+        "/test/scheduler/case-5.test.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1463,9 +1466,9 @@
       "id": "rule-hard-115",
       "kind": "rule",
       "title": "catalog boundary rule 5",
-      "body": "Within /packages/catalog/src/module-5, public adapters must pass through `guardHARD-116-catalog` before emitting state. This convention is tracked by **HARD-116-catalog** and does not apply outside this area.",
+      "body": "Within /lib/catalog/module-5.js, public adapters must pass through `guardHARD-116-catalog` before emitting state. This convention is tracked by **HARD-116-catalog** and does not apply outside this area.",
       "node_paths": [
-        "/packages/catalog/src/module-5"
+        "/lib/catalog/module-5.js"
       ],
       "priority": "low",
       "scope_type": "folder",
@@ -1476,9 +1479,9 @@
       "id": "mem-hard-116",
       "kind": "memory",
       "title": "recommendations decision record 5",
-      "body": "The recommendations team's module 5 is internally named **HARD-117-recommendations**. Its maintenance window and ownership are local to /packages/recommendations/src/module-5; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The recommendations team's module 5 is internally named **HARD-117-recommendations**. Its maintenance window and ownership are local to /lib/recommendations/module-5.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/recommendations/src/module-5"
+        "/lib/recommendations/module-5.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1487,9 +1490,9 @@
       "id": "mem-hard-117",
       "kind": "memory",
       "title": "profiles decision record 5",
-      "body": "The profiles team's module 5 is internally named **HARD-118-profiles**. Its maintenance window and ownership are local to /apps/profiles/src/feature-5; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The profiles team's module 5 is internally named **HARD-118-profiles**. Its maintenance window and ownership are local to /test/profiles/case-5.test.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/apps/profiles/src/feature-5"
+        "/test/profiles/case-5.test.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1498,9 +1501,9 @@
       "id": "mem-hard-118",
       "kind": "memory",
       "title": "teams decision record 5",
-      "body": "The teams team's module 5 is internally named **HARD-119-teams**. Its maintenance window and ownership are local to /packages/teams/src/module-5; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The teams team's module 5 is internally named **HARD-119-teams**. Its maintenance window and ownership are local to /lib/teams/module-5.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/teams/src/module-5"
+        "/lib/teams/module-5.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1509,9 +1512,9 @@
       "id": "mem-hard-119",
       "kind": "memory",
       "title": "invitations decision record 5",
-      "body": "The invitations team's module 5 is internally named **HARD-120-invitations**. Its maintenance window and ownership are local to /packages/invitations/src/module-5; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The invitations team's module 5 is internally named **HARD-120-invitations**. Its maintenance window and ownership are local to /lib/invitations/module-5.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/invitations/src/module-5"
+        "/lib/invitations/module-5.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1520,9 +1523,9 @@
       "id": "rule-hard-120",
       "kind": "rule",
       "title": "search boundary rule 6",
-      "body": "Within /apps/search/src/feature-6, public adapters must pass through `guardHARD-121-search` before emitting state. This convention is tracked by **HARD-121-search** and does not apply outside this area.",
+      "body": "Within /test/search/case-6.test.js, public adapters must pass through `guardHARD-121-search` before emitting state. This convention is tracked by **HARD-121-search** and does not apply outside this area.",
       "node_paths": [
-        "/apps/search/src/feature-6"
+        "/test/search/case-6.test.js"
       ],
       "priority": "medium",
       "scope_type": "folder",
@@ -1536,7 +1539,7 @@
       "description": "Release checklist for notifications module 6.",
       "body": "1. Run `checkHARD-122-notifications`.\n2. Compare the notifications snapshot.\n3. Record marker **HARD-122-notifications**.\n4. Notify the owning notifications channel.",
       "node_paths": [
-        "/packages/notifications/src/module-6"
+        "/lib/notifications/module-6.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1545,9 +1548,9 @@
       "id": "mem-hard-122",
       "kind": "memory",
       "title": "files decision record 6",
-      "body": "The files team's module 6 is internally named **HARD-123-files**. Its maintenance window and ownership are local to /packages/files/src/module-6; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The files team's module 6 is internally named **HARD-123-files**. Its maintenance window and ownership are local to /lib/files/module-6.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/files/src/module-6"
+        "/lib/files/module-6.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1556,9 +1559,9 @@
       "id": "mem-hard-123",
       "kind": "memory",
       "title": "analytics decision record 6",
-      "body": "The analytics team's module 6 is internally named **HARD-124-analytics**. Its maintenance window and ownership are local to /apps/analytics/src/feature-6; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The analytics team's module 6 is internally named **HARD-124-analytics**. Its maintenance window and ownership are local to /test/analytics/case-6.test.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/apps/analytics/src/feature-6"
+        "/test/analytics/case-6.test.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1567,9 +1570,9 @@
       "id": "mem-hard-124",
       "kind": "memory",
       "title": "admin decision record 6",
-      "body": "The admin team's module 6 is internally named **HARD-125-admin**. Its maintenance window and ownership are local to /packages/admin/src/module-6; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The admin team's module 6 is internally named **HARD-125-admin**. Its maintenance window and ownership are local to /lib/admin/module-6.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/admin/src/module-6"
+        "/lib/admin/module-6.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1578,9 +1581,9 @@
       "id": "rule-hard-125",
       "kind": "rule",
       "title": "mobile boundary rule 6",
-      "body": "Within /packages/mobile/src/module-6, public adapters must pass through `guardHARD-126-mobile` before emitting state. This convention is tracked by **HARD-126-mobile** and does not apply outside this area.",
+      "body": "Within /lib/mobile/module-6.js, public adapters must pass through `guardHARD-126-mobile` before emitting state. This convention is tracked by **HARD-126-mobile** and does not apply outside this area.",
       "node_paths": [
-        "/packages/mobile/src/module-6"
+        "/lib/mobile/module-6.js"
       ],
       "priority": "low",
       "scope_type": "folder",
@@ -1591,9 +1594,9 @@
       "id": "mem-hard-126",
       "kind": "memory",
       "title": "web decision record 6",
-      "body": "The web team's module 6 is internally named **HARD-127-web**. Its maintenance window and ownership are local to /apps/web/src/feature-6; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The web team's module 6 is internally named **HARD-127-web**. Its maintenance window and ownership are local to /test/web/case-6.test.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/apps/web/src/feature-6"
+        "/test/web/case-6.test.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1602,9 +1605,9 @@
       "id": "mem-hard-127",
       "kind": "memory",
       "title": "design-system decision record 6",
-      "body": "The design-system team's module 6 is internally named **HARD-128-designsystem**. Its maintenance window and ownership are local to /packages/design-system/src/module-6; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The design-system team's module 6 is internally named **HARD-128-designsystem**. Its maintenance window and ownership are local to /lib/design-system/module-6.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/design-system/src/module-6"
+        "/lib/design-system/module-6.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1613,9 +1616,9 @@
       "id": "mem-hard-128",
       "kind": "memory",
       "title": "feature-flags decision record 6",
-      "body": "The feature-flags team's module 6 is internally named **HARD-129-featureflags**. Its maintenance window and ownership are local to /packages/feature-flags/src/module-6; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The feature-flags team's module 6 is internally named **HARD-129-featureflags**. Its maintenance window and ownership are local to /lib/feature-flags/module-6.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/feature-flags/src/module-6"
+        "/lib/feature-flags/module-6.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1624,9 +1627,9 @@
       "id": "mem-hard-129",
       "kind": "memory",
       "title": "support decision record 6",
-      "body": "The support team's module 6 is internally named **HARD-130-support**. Its maintenance window and ownership are local to /apps/support/src/feature-6; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The support team's module 6 is internally named **HARD-130-support**. Its maintenance window and ownership are local to /test/support/case-6.test.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/apps/support/src/feature-6"
+        "/test/support/case-6.test.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1635,9 +1638,9 @@
       "id": "rule-hard-130",
       "kind": "rule",
       "title": "compliance boundary rule 6",
-      "body": "Within /packages/compliance/src/module-6, public adapters must pass through `guardHARD-131-compliance` before emitting state. This convention is tracked by **HARD-131-compliance** and does not apply outside this area.",
+      "body": "Within /lib/compliance/module-6.js, public adapters must pass through `guardHARD-131-compliance` before emitting state. This convention is tracked by **HARD-131-compliance** and does not apply outside this area.",
       "node_paths": [
-        "/packages/compliance/src/module-6"
+        "/lib/compliance/module-6.js"
       ],
       "priority": "medium",
       "scope_type": "folder",
@@ -1648,9 +1651,9 @@
       "id": "mem-hard-131",
       "kind": "memory",
       "title": "imports decision record 6",
-      "body": "The imports team's module 6 is internally named **HARD-132-imports**. Its maintenance window and ownership are local to /packages/imports/src/module-6; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The imports team's module 6 is internally named **HARD-132-imports**. Its maintenance window and ownership are local to /lib/imports/module-6.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/imports/src/module-6"
+        "/lib/imports/module-6.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1662,7 +1665,7 @@
       "description": "Release checklist for exports module 6.",
       "body": "1. Run `checkHARD-133-exports`.\n2. Compare the exports snapshot.\n3. Record marker **HARD-133-exports**.\n4. Notify the owning exports channel.",
       "node_paths": [
-        "/apps/exports/src/feature-6"
+        "/test/exports/case-6.test.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1671,9 +1674,9 @@
       "id": "mem-hard-133",
       "kind": "memory",
       "title": "reporting decision record 6",
-      "body": "The reporting team's module 6 is internally named **HARD-134-reporting**. Its maintenance window and ownership are local to /packages/reporting/src/module-6; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The reporting team's module 6 is internally named **HARD-134-reporting**. Its maintenance window and ownership are local to /lib/reporting/module-6.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/reporting/src/module-6"
+        "/lib/reporting/module-6.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1682,9 +1685,9 @@
       "id": "mem-hard-134",
       "kind": "memory",
       "title": "experiments decision record 6",
-      "body": "The experiments team's module 6 is internally named **HARD-135-experiments**. Its maintenance window and ownership are local to /packages/experiments/src/module-6; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The experiments team's module 6 is internally named **HARD-135-experiments**. Its maintenance window and ownership are local to /lib/experiments/module-6.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/experiments/src/module-6"
+        "/lib/experiments/module-6.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1693,9 +1696,9 @@
       "id": "rule-hard-135",
       "kind": "rule",
       "title": "localization boundary rule 6",
-      "body": "Within /apps/localization/src/feature-6, public adapters must pass through `guardHARD-136-localization` before emitting state. This convention is tracked by **HARD-136-localization** and does not apply outside this area.",
+      "body": "Within /test/localization/case-6.test.js, public adapters must pass through `guardHARD-136-localization` before emitting state. This convention is tracked by **HARD-136-localization** and does not apply outside this area.",
       "node_paths": [
-        "/apps/localization/src/feature-6"
+        "/test/localization/case-6.test.js"
       ],
       "priority": "low",
       "scope_type": "folder",
@@ -1706,9 +1709,9 @@
       "id": "mem-hard-136",
       "kind": "memory",
       "title": "onboarding decision record 6",
-      "body": "The onboarding team's module 6 is internally named **HARD-137-onboarding**. Its maintenance window and ownership are local to /packages/onboarding/src/module-6; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The onboarding team's module 6 is internally named **HARD-137-onboarding**. Its maintenance window and ownership are local to /lib/onboarding/module-6.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/onboarding/src/module-6"
+        "/lib/onboarding/module-6.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1717,9 +1720,9 @@
       "id": "mem-hard-137",
       "kind": "memory",
       "title": "audit decision record 6",
-      "body": "The audit team's module 6 is internally named **HARD-138-audit**. Its maintenance window and ownership are local to /packages/audit/src/module-6; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The audit team's module 6 is internally named **HARD-138-audit**. Its maintenance window and ownership are local to /lib/audit/module-6.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/audit/src/module-6"
+        "/lib/audit/module-6.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1728,9 +1731,9 @@
       "id": "mem-hard-138",
       "kind": "memory",
       "title": "scheduler decision record 6",
-      "body": "The scheduler team's module 6 is internally named **HARD-139-scheduler**. Its maintenance window and ownership are local to /apps/scheduler/src/feature-6; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The scheduler team's module 6 is internally named **HARD-139-scheduler**. Its maintenance window and ownership are local to /test/scheduler/case-6.test.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/apps/scheduler/src/feature-6"
+        "/test/scheduler/case-6.test.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1739,9 +1742,9 @@
       "id": "mem-hard-139",
       "kind": "memory",
       "title": "catalog decision record 6",
-      "body": "The catalog team's module 6 is internally named **HARD-140-catalog**. Its maintenance window and ownership are local to /packages/catalog/src/module-6; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The catalog team's module 6 is internally named **HARD-140-catalog**. Its maintenance window and ownership are local to /lib/catalog/module-6.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/catalog/src/module-6"
+        "/lib/catalog/module-6.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1750,9 +1753,9 @@
       "id": "rule-hard-140",
       "kind": "rule",
       "title": "recommendations boundary rule 6",
-      "body": "Within /packages/recommendations/src/module-6, public adapters must pass through `guardHARD-141-recommendations` before emitting state. This convention is tracked by **HARD-141-recommendations** and does not apply outside this area.",
+      "body": "Within /lib/recommendations/module-6.js, public adapters must pass through `guardHARD-141-recommendations` before emitting state. This convention is tracked by **HARD-141-recommendations** and does not apply outside this area.",
       "node_paths": [
-        "/packages/recommendations/src/module-6"
+        "/lib/recommendations/module-6.js"
       ],
       "priority": "medium",
       "scope_type": "folder",
@@ -1763,9 +1766,9 @@
       "id": "mem-hard-141",
       "kind": "memory",
       "title": "profiles decision record 6",
-      "body": "The profiles team's module 6 is internally named **HARD-142-profiles**. Its maintenance window and ownership are local to /apps/profiles/src/feature-6; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The profiles team's module 6 is internally named **HARD-142-profiles**. Its maintenance window and ownership are local to /test/profiles/case-6.test.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/apps/profiles/src/feature-6"
+        "/test/profiles/case-6.test.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1774,9 +1777,9 @@
       "id": "mem-hard-142",
       "kind": "memory",
       "title": "teams decision record 6",
-      "body": "The teams team's module 6 is internally named **HARD-143-teams**. Its maintenance window and ownership are local to /packages/teams/src/module-6; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The teams team's module 6 is internally named **HARD-143-teams**. Its maintenance window and ownership are local to /lib/teams/module-6.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/teams/src/module-6"
+        "/lib/teams/module-6.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1788,7 +1791,7 @@
       "description": "Release checklist for invitations module 6.",
       "body": "1. Run `checkHARD-144-invitations`.\n2. Compare the invitations snapshot.\n3. Record marker **HARD-144-invitations**.\n4. Notify the owning invitations channel.",
       "node_paths": [
-        "/packages/invitations/src/module-6"
+        "/lib/invitations/module-6.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1797,9 +1800,9 @@
       "id": "mem-hard-144",
       "kind": "memory",
       "title": "search decision record 7",
-      "body": "The search team's module 7 is internally named **HARD-145-search**. Its maintenance window and ownership are local to /apps/search/src/feature-7; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The search team's module 7 is internally named **HARD-145-search**. Its maintenance window and ownership are local to /test/search/case-7.test.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/apps/search/src/feature-7"
+        "/test/search/case-7.test.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1808,9 +1811,9 @@
       "id": "rule-hard-145",
       "kind": "rule",
       "title": "notifications boundary rule 7",
-      "body": "Within /packages/notifications/src/module-7, public adapters must pass through `guardHARD-146-notifications` before emitting state. This convention is tracked by **HARD-146-notifications** and does not apply outside this area.",
+      "body": "Within /lib/notifications/module-7.js, public adapters must pass through `guardHARD-146-notifications` before emitting state. This convention is tracked by **HARD-146-notifications** and does not apply outside this area.",
       "node_paths": [
-        "/packages/notifications/src/module-7"
+        "/lib/notifications/module-7.js"
       ],
       "priority": "low",
       "scope_type": "folder",
@@ -1821,9 +1824,9 @@
       "id": "mem-hard-146",
       "kind": "memory",
       "title": "files decision record 7",
-      "body": "The files team's module 7 is internally named **HARD-147-files**. Its maintenance window and ownership are local to /packages/files/src/module-7; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The files team's module 7 is internally named **HARD-147-files**. Its maintenance window and ownership are local to /lib/files/module-7.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/files/src/module-7"
+        "/lib/files/module-7.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1832,9 +1835,9 @@
       "id": "mem-hard-147",
       "kind": "memory",
       "title": "analytics decision record 7",
-      "body": "The analytics team's module 7 is internally named **HARD-148-analytics**. Its maintenance window and ownership are local to /apps/analytics/src/feature-7; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The analytics team's module 7 is internally named **HARD-148-analytics**. Its maintenance window and ownership are local to /test/analytics/case-7.test.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/apps/analytics/src/feature-7"
+        "/test/analytics/case-7.test.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1843,9 +1846,9 @@
       "id": "mem-hard-148",
       "kind": "memory",
       "title": "admin decision record 7",
-      "body": "The admin team's module 7 is internally named **HARD-149-admin**. Its maintenance window and ownership are local to /packages/admin/src/module-7; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The admin team's module 7 is internally named **HARD-149-admin**. Its maintenance window and ownership are local to /lib/admin/module-7.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/admin/src/module-7"
+        "/lib/admin/module-7.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1854,9 +1857,9 @@
       "id": "mem-hard-149",
       "kind": "memory",
       "title": "mobile decision record 7",
-      "body": "The mobile team's module 7 is internally named **HARD-150-mobile**. Its maintenance window and ownership are local to /packages/mobile/src/module-7; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The mobile team's module 7 is internally named **HARD-150-mobile**. Its maintenance window and ownership are local to /lib/mobile/module-7.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/mobile/src/module-7"
+        "/lib/mobile/module-7.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1865,9 +1868,9 @@
       "id": "rule-hard-150",
       "kind": "rule",
       "title": "web boundary rule 7",
-      "body": "Within /apps/web/src/feature-7, public adapters must pass through `guardHARD-151-web` before emitting state. This convention is tracked by **HARD-151-web** and does not apply outside this area.",
+      "body": "Within /test/web/case-7.test.js, public adapters must pass through `guardHARD-151-web` before emitting state. This convention is tracked by **HARD-151-web** and does not apply outside this area.",
       "node_paths": [
-        "/apps/web/src/feature-7"
+        "/test/web/case-7.test.js"
       ],
       "priority": "medium",
       "scope_type": "folder",
@@ -1878,9 +1881,9 @@
       "id": "mem-hard-151",
       "kind": "memory",
       "title": "design-system decision record 7",
-      "body": "The design-system team's module 7 is internally named **HARD-152-designsystem**. Its maintenance window and ownership are local to /packages/design-system/src/module-7; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The design-system team's module 7 is internally named **HARD-152-designsystem**. Its maintenance window and ownership are local to /lib/design-system/module-7.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/design-system/src/module-7"
+        "/lib/design-system/module-7.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1889,9 +1892,9 @@
       "id": "mem-hard-152",
       "kind": "memory",
       "title": "feature-flags decision record 7",
-      "body": "The feature-flags team's module 7 is internally named **HARD-153-featureflags**. Its maintenance window and ownership are local to /packages/feature-flags/src/module-7; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The feature-flags team's module 7 is internally named **HARD-153-featureflags**. Its maintenance window and ownership are local to /lib/feature-flags/module-7.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/packages/feature-flags/src/module-7"
+        "/lib/feature-flags/module-7.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1900,9 +1903,9 @@
       "id": "mem-hard-153",
       "kind": "memory",
       "title": "support decision record 7",
-      "body": "The support team's module 7 is internally named **HARD-154-support**. Its maintenance window and ownership are local to /apps/support/src/feature-7; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The support team's module 7 is internally named **HARD-154-support**. Its maintenance window and ownership are local to /test/support/case-7.test.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/apps/support/src/feature-7"
+        "/test/support/case-7.test.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1914,7 +1917,7 @@
       "description": "Release checklist for compliance module 7.",
       "body": "1. Run `checkHARD-155-compliance`.\n2. Compare the compliance snapshot.\n3. Record marker **HARD-155-compliance**.\n4. Notify the owning compliance channel.",
       "node_paths": [
-        "/packages/compliance/src/module-7"
+        "/lib/compliance/module-7.js"
       ],
       "relevance": "unrelated",
       "case_ids": []
@@ -1923,9 +1926,9 @@
       "id": "rule-hard-155",
       "kind": "rule",
       "title": "imports boundary rule 7",
-      "body": "Within /packages/imports/src/module-7, public adapters must pass through `guardHARD-156-imports` before emitting state. This convention is tracked by **HARD-156-imports** and does not apply outside this area.",
+      "body": "Within /lib/imports/module-7.js, public adapters must pass through `guardHARD-156-imports` before emitting state. This convention is tracked by **HARD-156-imports** and does not apply outside this area.",
       "node_paths": [
-        "/packages/imports/src/module-7"
+        "/lib/imports/module-7.js"
       ],
       "priority": "low",
       "scope_type": "folder",
@@ -1936,9 +1939,9 @@
       "id": "mem-hard-156",
       "kind": "memory",
       "title": "exports decision record 7",
-      "body": "The exports team's module 7 is internally named **HARD-157-exports**. Its maintenance window and ownership are local to /apps/exports/src/feature-7; this record is unrelated to auth, billing, delivery, and logging.",
+      "body": "The exports team's module 7 is internally named **HARD-157-exports**. Its maintenance window and ownership are local to /test/exports/case-7.test.js; this record is unrelated to auth, billing, delivery, and logging.",
       "node_paths": [
-        "/apps/exports/src/feature-7"
+        "/test/exports/case-7.test.js"
       ],
       "relevance": "unrelated",
       "case_ids": []

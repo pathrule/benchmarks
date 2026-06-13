@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "name": "fastify",
+  "url": "https://github.com/fastify/fastify.git",
+  "tag": "v5.8.5",
+  "commit": "3983cce8124714242099e8756a7a9a80a0ba0aea",
+  "license": "MIT"
+}

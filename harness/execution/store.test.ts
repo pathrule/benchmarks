@@ -21,13 +21,13 @@ const config: SuiteConfig = {
   pathrule_commit: "abc123",
   pathrule_dirty: false,
   clients: ["claude"],
-  variants: ["bare"],
-  tiers: ["easy"],
+  variants: ["monolithic"],
+  tiers: ["hard"],
   repetitions: 1,
   timeout_ms: 1000,
   models: { claude: "opus", codex: "gpt" },
   sessions: {
-    easy: [
+    hard: [
       {
         id: "session-a",
         initial_cwd_rel: ".",
@@ -60,9 +60,9 @@ function recordFor(plan: ReturnType<typeof buildExecutionGraph>[number]): RunRec
 
 test("resume reuses only matching terminal config hashes", () => {
   const graph = buildExecutionGraph(config, {
-    tiers: ["easy"],
+    tiers: ["hard"],
     clients: ["claude"],
-    variants: ["bare"],
+    variants: ["monolithic"],
     repetitions: 1,
   });
   const record = recordFor(graph[0]!);
@@ -83,30 +83,30 @@ test("resume reuses only matching terminal config hashes", () => {
 
 test("refresh reruns matching cells without invalidating others", () => {
   const graph = buildExecutionGraph(
-    { ...config, variants: ["bare", "monolithic"] },
+    { ...config, variants: ["monolithic", "pathrule-current"] },
     {
-      tiers: ["easy"],
+      tiers: ["hard"],
       clients: ["claude"],
-      variants: ["bare", "monolithic"],
+      variants: ["monolithic", "pathrule-current"],
       repetitions: 1,
     },
   );
   const records = graph.map(recordFor);
   const pending = pendingPlans(graph, records, {
     resume: true,
-    refreshSelectors: ["monolithic"],
-    matchesRefresh: (plan) => plan.variant === "monolithic",
+    refreshSelectors: ["pathrule-current"],
+    matchesRefresh: (plan) => plan.variant === "pathrule-current",
   });
-  assert.deepEqual(pending.map((plan) => plan.variant), ["monolithic"]);
+  assert.deepEqual(pending.map((plan) => plan.variant), ["pathrule-current"]);
 });
 
 test("run log tolerates one torn final line and preserves prior records", () => {
   const dir = mkdtempSync(join(tmpdir(), "bench-store-"));
   const path = join(dir, "runs.jsonl");
   const plan = buildExecutionGraph(config, {
-    tiers: ["easy"],
+    tiers: ["hard"],
     clients: ["claude"],
-    variants: ["bare"],
+    variants: ["monolithic"],
     repetitions: 1,
   })[0]!;
   appendRunRecord(path, recordFor(plan));
@@ -116,19 +116,40 @@ test("run log tolerates one torn final line and preserves prior records", () => 
 
 test("cell hash changes when the prompt sequence changes", () => {
   const before = buildExecutionGraph(config, {
-    tiers: ["easy"],
+    tiers: ["hard"],
     clients: ["claude"],
-    variants: ["bare"],
+    variants: ["monolithic"],
     repetitions: 1,
   })[0]!;
   const changed: SuiteConfig = structuredClone(config);
-  changed.sessions.easy![0]!.prompts[0]!.text = "different";
+  changed.sessions.hard![0]!.prompts[0]!.text = "different";
   const after = buildExecutionGraph(changed, {
-    tiers: ["easy"],
+    tiers: ["hard"],
     clients: ["claude"],
-    variants: ["bare"],
+    variants: ["monolithic"],
     repetitions: 1,
   })[0]!;
   assert.equal(before.cell_id, after.cell_id);
   assert.notEqual(before.config_hash, after.config_hash);
+});
+
+test("monolithic baseline identity does not change with Pathrule source commits", () => {
+  const before = buildExecutionGraph(config, {
+    tiers: ["hard"],
+    clients: ["claude"],
+    variants: ["monolithic"],
+    repetitions: 1,
+  })[0]!;
+  const after = buildExecutionGraph(
+    { ...config, pathrule_commit: "new-pathrule-commit" },
+    {
+      tiers: ["hard"],
+      clients: ["claude"],
+      variants: ["monolithic"],
+      repetitions: 1,
+    },
+  )[0]!;
+  assert.equal(before.cell_id, after.cell_id);
+  assert.equal(before.config_hash, after.config_hash);
+  assert.equal(before.source_commit, "pathrule-independent");
 });

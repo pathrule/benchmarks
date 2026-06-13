@@ -1,0 +1,5 @@
+tier,client,variant,lang,cells,completed,failed,fact_accuracy,action_accuracy,forbidden_hits,non_cached_median,total_median,duration_median_ms
+hard,claude,monolithic,en,3,3,0,1,1,0,30918,417167,69246
+hard,claude,pathrule-current,en,3,3,0,1,1,0,16084,198069,69419
+hard,codex,monolithic,en,3,3,0,0.9523809523809523,0.5,0,30287,412433,129872
+hard,codex,pathrule-current,en,3,3,0,0.9365079365079365,0.8333333333333334,0,27682,241849,105700

@@ -19,6 +19,8 @@ export interface FixtureManifest {
   schema_version: 1;
   tier: TierId;
   generated_at: string;
+  repository_name: string;
+  repository_commit: string;
   knowledge_count: number;
   counts: Record<KnowledgeKind, number>;
   relevance_counts: Record<CanonicalKnowledgeItem["relevance"], number>;
@@ -30,11 +32,10 @@ export interface FixtureManifest {
 
 export interface FixtureDefinition {
   tier: TierId;
-  files: Record<string, string>;
   knowledge: CanonicalKnowledgeItem[];
   sessions: SessionSpec[];
 }
 
 export function allKnowledgeFacts(prompts: PromptSpec[]): string[] {
-  return prompts.flatMap((prompt) => prompt.expected_facts);
+  return prompts.flatMap((prompt) => prompt.knowledge_only_facts ?? []);
 }

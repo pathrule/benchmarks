@@ -1,117 +1,146 @@
 [
   {
-    "id": "world-session",
-    "initial_cwd_rel": "apps/api/src/auth",
+    "id": "world-en",
+    "initial_cwd_rel": "lib",
     "prompts": [
       {
         "id": "auth-recall",
-        "text": "Bu projede tarayıcı session mimarisinin arkasındaki proje içi kararı ve karar kaydını açıkla. Tahmin etme.",
-        "cwd_rel": "apps/api/src/auth",
+        "text": "Explain the team's internal name for Fastify's route compilation architecture and its decision record. Do not guess.",
+        "cwd_rel": "lib",
         "expected_facts": [
           "Cedarline",
-          "AUTH-271"
+          "FAST-271"
         ],
-        "response_language": "tr"
+        "knowledge_only_facts": [
+          "Cedarline",
+          "FAST-271"
+        ],
+        "response_language": "en"
       },
       {
         "id": "auth-followup",
-        "text": "Aynı session ailesi ele geçirilmiş sayılırsa içeride hangi duruma alınır ve recovery sırası nasıl olmalıdır?",
-        "cwd_rel": "apps/api/src/auth",
+        "text": "If a lifecycle hook times out, what is the team's internal name for the recovery path, and which two pieces of information must be preserved when the error is propagated?",
+        "cwd_rel": "lib",
         "expected_facts": [
           "Sundial quarantine",
-          "revoking the family"
+          "original hook name",
+          "timeout context"
         ],
-        "response_language": "tr"
+        "knowledge_only_facts": [
+          "Sundial quarantine"
+        ],
+        "response_language": "en"
       },
       {
         "id": "billing-switch",
-        "text": "Şimdi billing alanına geç: ledger migration kod adı ve gece çalışan reconciliation işi nedir?",
-        "cwd_rel": "apps/api/src/billing",
+        "text": "Now switch to the reply area: what is the serialization migration codename and its compatibility verifier?",
+        "cwd_rel": "lib",
         "expected_facts": [
           "Harbor-17",
-          "invoice-lantern"
+          "payload-lantern"
         ],
-        "response_language": "tr"
+        "knowledge_only_facts": [
+          "Harbor-17",
+          "payload-lantern"
+        ],
+        "response_language": "en"
       },
       {
         "id": "worker-path-change",
-        "text": "Worker tarafındaki cross-region durable delivery topolojisinin proje içi adını ve retry sahibini söyle.",
-        "cwd_rel": "apps/worker/src/delivery",
+        "text": "Give the team's internal name for the validation compiler topology and state which phase schema compilation belongs to.",
+        "cwd_rel": "lib",
         "expected_facts": [
           "Quartz Relay"
         ],
-        "required_actions": [
-          "retry ownership belongs to the worker"
+        "knowledge_only_facts": [
+          "Quartz Relay"
         ],
-        "response_language": "tr"
+        "required_actions": [
+          "route setup"
+        ],
+        "response_language": "en"
       },
       {
         "id": "money-rule",
-        "text": "Billing ekranında kullanıcıya ledger tutarı gösterecek kısa bir TypeScript snippet ver. Repo konvansiyonuna uy.",
-        "cwd_rel": "apps/api/src/billing",
+        "text": "Give a short CommonJS snippet to add a new framework error to Fastify core. Follow the repo convention.",
+        "cwd_rel": "lib",
         "expected_facts": [
-          "fmtLedgerValue",
-          "FIN-19"
+          "createError",
+          "FST_ERR_",
+          "ERR-19"
+        ],
+        "knowledge_only_facts": [
+          "ERR-19"
         ],
         "forbidden_facts": [
-          "Intl.NumberFormat",
-          "toLocaleString"
+          "throw '",
+          "throw \""
         ],
-        "response_language": "tr"
+        "response_language": "en"
       },
       {
         "id": "billing-procedure",
-        "text": "Yeni billing event handler review edilirken bu projeye özgü zorunlu adımları sırayla yaz.",
-        "cwd_rel": "apps/api/src/billing",
+        "text": "List, in order, the project-specific mandatory steps when a Fastify route lifecycle change is reviewed.",
+        "cwd_rel": "lib",
         "expected_facts": [
-          "verifyEventSeal",
-          "event_receipts",
-          "billing.event.accepted"
+          "ROUTE-REVIEW-7",
+          "throwIfAlreadyStarted",
+          "onRoute",
+          "inject()"
         ],
-        "response_language": "tr"
+        "knowledge_only_facts": [
+          "ROUTE-REVIEW-7"
+        ],
+        "response_language": "en"
       },
       {
         "id": "code-verification",
-        "text": "Route registration boot akışında hangi fonksiyondan geçiyor ve ready durumundan önce mi sonra mı çağrılıyor? Yalnız gerekli kodu okuyarak doğrula.",
-        "cwd_rel": "apps/api/src",
+        "text": "Which router library does Fastify route registration use, and which function checks for an already-started instance when adding a new route? Verify by reading only the necessary code.",
+        "cwd_rel": "lib",
         "expected_facts": [],
         "expected_source_facts": [
-          "registerRoutes",
-          "before ready"
+          "find-my-way",
+          "throwIfAlreadyStarted"
         ],
         "required_actions": [
-          "apps/api/src/server.ts",
-          "apps/api/src/routes.ts"
+          "lib/route.js"
         ],
-        "response_language": "tr"
+        "response_language": "en"
       },
       {
         "id": "discovery",
-        "text": "Log sampling kararının proje içi adını ve bu ayarın hangi ekip sınırında tutulduğunu bul. Geniş repo taraması yapma.",
-        "cwd_rel": "packages/observability",
+        "text": "Find the team's internal name for the child logger compatibility decision and which file owns logger construction. Do not do a broad repo scan.",
+        "cwd_rel": "lib",
         "expected_facts": [
           "Northglass",
-          "platform observability"
+          "lib/logger-factory.js"
         ],
-        "response_language": "tr"
+        "knowledge_only_facts": [
+          "Northglass"
+        ],
+        "response_language": "en"
       },
       {
         "id": "unknown",
-        "text": "Bu projede veritabanı failover tatbikatının gizli kod adı nedir? Kanıt yoksa açıkça bilmediğini söyle.",
-        "cwd_rel": "apps/api/src",
+        "text": "What is the secret codename of the HTTP/3 migration program in this Fastify workspace? If there is no evidence, clearly say you don't know.",
+        "cwd_rel": "lib",
         "expected_facts": [],
         "expects_abstention": true,
-        "response_language": "tr"
+        "response_language": "en"
       },
       {
         "id": "auth-return",
-        "text": "İlk session konusuna dön: mimari adı neydi ve hangi başarısız deneyden sonra kayda geçmişti?",
-        "cwd_rel": "apps/api/src/auth",
+        "text": "Return to the first route compilation topic: what was the architecture name and after which failed experiment was it recorded?",
+        "cwd_rel": "lib",
         "expected_facts": [
           "Cedarline",
-          "rotating-cookie"
+          "mutable-router"
         ],
-        "response_language": "tr"
+        "knowledge_only_facts": [
+          "Cedarline",
+          "mutable-router"
+        ],
+        "response_language": "en"
       }
     ]
   }

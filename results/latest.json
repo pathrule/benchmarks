@@ -1,0 +1,187 @@
+{
+  "schema_version": 1,
+  "scoring_version": 4,
+  "generated_at": "2026-06-13T00:14:02.553Z",
+  "published_scope": {
+    "tiers": [
+      "hard"
+    ],
+    "language": "en",
+    "repetitions": 3,
+    "variants": [
+      "monolithic",
+      "pathrule-current"
+    ]
+  },
+  "aggregates": [
+    {
+      "tier": "hard",
+      "client": "claude",
+      "variant": "monolithic",
+      "lang": "en",
+      "cells": 3,
+      "completed": 3,
+      "failed": 0,
+      "expected_fact_hits": 63,
+      "expected_fact_count": 63,
+      "required_action_hits": 6,
+      "required_action_count": 6,
+      "forbidden_hits": 0,
+      "abstention_correct": 3,
+      "abstention_count": 3,
+      "language_correct": 30,
+      "language_count": 30,
+      "non_cached_tokens": {
+        "count": 3,
+        "mean": 30710.666666666668,
+        "median": 30918,
+        "min": 30264,
+        "max": 30950,
+        "stddev": 316.11109158367447
+      },
+      "total_tokens": {
+        "count": 3,
+        "mean": 406106.3333333333,
+        "median": 417167,
+        "min": 383772,
+        "max": 417380,
+        "stddev": 15792.99794916159
+      },
+      "duration_ms": {
+        "count": 3,
+        "mean": 69398,
+        "median": 69246,
+        "min": 68395,
+        "max": 70553,
+        "stddev": 887.5317834684382
+      }
+    },
+    {
+      "tier": "hard",
+      "client": "claude",
+      "variant": "pathrule-current",
+      "lang": "en",
+      "cells": 3,
+      "completed": 3,
+      "failed": 0,
+      "expected_fact_hits": 63,
+      "expected_fact_count": 63,
+      "required_action_hits": 6,
+      "required_action_count": 6,
+      "forbidden_hits": 0,
+      "abstention_correct": 3,
+      "abstention_count": 3,
+      "language_correct": 30,
+      "language_count": 30,
+      "non_cached_tokens": {
+        "count": 3,
+        "mean": 16164,
+        "median": 16084,
+        "min": 15489,
+        "max": 16919,
+        "stddev": 586.5293399879214
+      },
+      "total_tokens": {
+        "count": 3,
+        "mean": 194278,
+        "median": 198069,
+        "min": 168292,
+        "max": 216473,
+        "stddev": 19851.632191501703
+      },
+      "duration_ms": {
+        "count": 3,
+        "mean": 89467,
+        "median": 69419,
+        "min": 67777,
+        "max": 131205,
+        "stddev": 29520.834721712505
+      }
+    },
+    {
+      "tier": "hard",
+      "client": "codex",
+      "variant": "monolithic",
+      "lang": "en",
+      "cells": 3,
+      "completed": 3,
+      "failed": 0,
+      "expected_fact_hits": 60,
+      "expected_fact_count": 63,
+      "required_action_hits": 3,
+      "required_action_count": 6,
+      "forbidden_hits": 0,
+      "abstention_correct": 3,
+      "abstention_count": 3,
+      "language_correct": 30,
+      "language_count": 30,
+      "non_cached_tokens": {
+        "count": 3,
+        "mean": 38475,
+        "median": 30287,
+        "min": 28545,
+        "max": 56593,
+        "stddev": 12831.084235818369
+      },
+      "total_tokens": {
+        "count": 3,
+        "mean": 422645.6666666667,
+        "median": 412433,
+        "min": 407553,
+        "max": 447951,
+        "stddev": 18004.13880812471
+      },
+      "duration_ms": {
+        "count": 3,
+        "mean": 124541,
+        "median": 129872,
+        "min": 106761,
+        "max": 136990,
+        "stddev": 12903.818065466774
+      }
+    },
+    {
+      "tier": "hard",
+      "client": "codex",
+      "variant": "pathrule-current",
+      "lang": "en",
+      "cells": 3,
+      "completed": 3,
+      "failed": 0,
+      "expected_fact_hits": 59,
+      "expected_fact_count": 63,
+      "required_action_hits": 5,
+      "required_action_count": 6,
+      "forbidden_hits": 0,
+      "abstention_correct": 3,
+      "abstention_count": 3,
+      "language_correct": 30,
+      "language_count": 30,
+      "non_cached_tokens": {
+        "count": 3,
+        "mean": 31766,
+        "median": 27682,
+        "min": 26727,
+        "max": 40889,
+        "stddev": 6462.705986401259
+      },
+      "total_tokens": {
+        "count": 3,
+        "mean": 224448.66666666666,
+        "median": 241849,
+        "min": 171682,
+        "max": 259815,
+        "stddev": 38025.7379707774
+      },
+      "duration_ms": {
+        "count": 3,
+        "mean": 105001.66666666667,
+        "median": 105700,
+        "min": 96337,
+        "max": 112968,
+        "stddev": 6807.510182797297
+      }
+    }
+  ],
+  "where_pathrule_costs_more": []
+}

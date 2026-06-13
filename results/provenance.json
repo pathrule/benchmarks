@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-12T23:12:11.320Z",
+  "suite_version": "honest-v1",
+  "harness_version": "0.1.0",
+  "published_scope": {
+    "tier": "hard",
+    "language": "en",
+    "repetitions": 3,
+    "session_id": "world-en",
+    "prompt_count": 10,
+    "clients": {
+      "claude": {
+        "display_name": "Claude Opus 4.8",
+        "requested_model": "opus"
+      },
+      "codex": {
+        "display_name": "OpenAI Codex GPT-5.5",
+        "requested_model": "gpt-5.5"
+      }
+    },
+    "variants": [
+      "monolithic",
+      "pathrule-current"
+    ],
+    "run_records": 12,
+    "completed_records": 12
+  },
+  "repository": {
+    "name": "fastify/fastify",
+    "tag": "v5.8.5",
+    "commit": "3983cce8124714242099e8756a7a9a80a0ba0aea"
+  },
+  "pathrule_runtime": {
+    "commit": "728861b562260dbda4acde06617656e38b0d97e9",
+    "dirty": false,
+    "version": "0.0.20",
+    "node_version": "v24.13.1",
+    "node_abi": "137",
+    "hashes": {
+      "cli_entry": "0efffeaae1f118b897439d0158b9443e93f858cd1078e5c3138e933e483f58ad",
+      "hook_source": "6842f088ea483efda0c8cb594e0d3455289f9d47cb9af433725ca0be35399d15",
+      "compiler_source": "53236e8987b0bc982da00194cb2dea888da036218fcb579ead7d39dd88f16d44",
+      "claude_renderer_source": "c9d3456a2203d5a5a95f1096008d57164023df91a32001eb3905a1f64379cd57",
+      "codex_renderer_source": "fb3bc6f9e523b2be9e936a109d3b1b546fa9583e1364097d834db1113dda8cb7"
+    }
+  },
+  "platform": {
+    "os": "darwin",
+    "architecture": "arm64"
+  }
+}
