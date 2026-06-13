@@ -187,20 +187,24 @@ function markdown(rows: Aggregate[], costly: Aggregate[]): string {
     "",
     "> Scope: `pathrule-current` is native path-scoped compilation plus navigation. Semantic embedding ranking (BYO key / Cloud) is additive and was not exercised in these cells.",
     "",
-    "| Tier | Client | Variant | Lang | Complete | Facts | Actions | Forbidden | Abstain | Language | Non-cached median | Total median | Duration median |",
+    "> Metrics: **Total footprint** is every token the model processes per turn, the provider-neutral measure of how much context each delivery puts in front of the model, and the primary efficiency number here. **Non-cached** is the billable subset after prompt caching; a static dump caches heavily, so non-cached understates its footprint. Both are shown.",
+    "",
+    "| Tier | Client | Variant | Lang | Complete | Facts | Actions | Forbidden | Abstain | Language | Total footprint median | Non-cached (billable) median | Duration median |",
     "| --- | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ...rows.map(
       (row) =>
-        `| ${row.tier} | ${row.client} | ${row.variant} | ${row.lang} | ${row.completed}/${row.cells} | ${percent(row.expected_fact_hits, row.expected_fact_count)} | ${percent(row.required_action_hits, row.required_action_count)} | ${row.forbidden_hits} | ${percent(row.abstention_correct, row.abstention_count)} | ${percent(row.language_correct, row.language_count)} | ${number(row.non_cached_tokens.median)} | ${number(row.total_tokens.median)} | ${number(row.duration_ms.median)} ms |`,
+        `| ${row.tier} | ${row.client} | ${row.variant} | ${row.lang} | ${row.completed}/${row.cells} | ${percent(row.expected_fact_hits, row.expected_fact_count)} | ${percent(row.required_action_hits, row.required_action_count)} | ${row.forbidden_hits} | ${percent(row.abstention_correct, row.abstention_count)} | ${percent(row.language_correct, row.language_count)} | ${number(row.total_tokens.median)} | ${number(row.non_cached_tokens.median)} | ${number(row.duration_ms.median)} ms |`,
     ),
     "",
     "## Where Pathrule Costs More",
     "",
+    "Flagged when Pathrule's median is above the monolithic baseline on EITHER total footprint OR non-cached tokens, so a regression on either metric is never hidden by the other.",
+    "",
     ...(costly.length === 0
-      ? ["No completed matched aggregate currently shows Pathrule above monolithic median non-cached tokens."]
+      ? ["No completed matched aggregate currently shows Pathrule above the monolithic baseline on total footprint or non-cached tokens."]
       : costly.map(
           (row) =>
-            `- ${row.tier}/${row.client}/${row.variant}: median non-cached tokens ${number(row.non_cached_tokens.median)}.`,
+            `- ${row.tier}/${row.client}/${row.variant}: total footprint ${number(row.total_tokens.median)}, non-cached ${number(row.non_cached_tokens.median)}.`,
         )),
     "",
     "Publishable claims require at least three completed runs per cell.",
@@ -263,12 +267,16 @@ export function buildReports(benchRoot: string): Aggregate[] {
       .map((row) => [`${row.tier}/${row.client}/${row.lang}`, row]),
   );
   const costly = rows.filter((row) => {
-    if (!row.variant.startsWith("pathrule") || row.non_cached_tokens.median === null) return false;
+    if (!row.variant.startsWith("pathrule")) return false;
     const baseline = monolithic.get(`${row.tier}/${row.client}/${row.lang}`);
+    if (!baseline) return false;
+    const above = (a: number | null, b: number | null | undefined) =>
+      a !== null && b !== null && b !== undefined && a > b;
+    // Flag a regression on EITHER metric so switching the headline to total
+    // footprint can never hide a non-cached (billable) loss, or vice versa.
     return (
-      baseline?.non_cached_tokens.median !== null &&
-      baseline?.non_cached_tokens.median !== undefined &&
-      row.non_cached_tokens.median > baseline.non_cached_tokens.median
+      above(row.total_tokens.median, baseline.total_tokens.median) ||
+      above(row.non_cached_tokens.median, baseline.non_cached_tokens.median)
     );
   });
   mkdirSync(resultsRoot, { recursive: true });
