@@ -36,18 +36,25 @@ completed cells will be added without rewriting or hiding this snapshot.
 All four published cells completed `3/3` runs. Values below are medians across
 the three full ten-prompt sessions.
 
+The primary efficiency metric is **total footprint** (every token the model
+processes per turn): the provider-neutral measure of how much context each
+delivery puts in front of the model. **Non-cached** tokens are the billable
+subset after prompt caching, shown alongside; a static dump caches heavily, so
+non-cached understates its footprint.
+
 ### Claude Opus 4.8
 
 | Metric | Monolithic | Pathrule | Change |
 | --- | ---: | ---: | ---: |
 | Fact accuracy | 100.0% | 100.0% | 0.0 pp |
 | Action accuracy | 100.0% | 100.0% | 0.0 pp |
-| Non-cached tokens | 30,918 | 16,084 | **-48.0%** |
 | Total token footprint | 417,167 | 198,069 | **-52.5%** |
+| Non-cached tokens | 30,918 | 16,084 | **-48.0%** |
 | Duration | 69.2 s | 69.4 s | +0.2% |
 
-Pathrule preserved every measured fact and required action while cutting median
-non-cached tokens by 48.0%. Duration was effectively flat.
+Pathrule preserved every measured fact and required action while cutting the
+median total footprint by 52.5% (billable non-cached tokens by 48.0%). Duration
+was effectively flat.
 
 ### OpenAI Codex GPT-5.5
 
@@ -55,8 +62,8 @@ non-cached tokens by 48.0%. Duration was effectively flat.
 | --- | ---: | ---: | ---: |
 | Fact accuracy | 95.2% | 93.7% | **-1.6 pp** |
 | Action accuracy | 50.0% | 83.3% | **+33.3 pp** |
-| Non-cached tokens | 30,287 | 27,682 | **-8.6%** |
 | Total token footprint | 412,433 | 241,849 | **-41.4%** |
+| Non-cached tokens | 30,287 | 27,682 | **-8.6%** |
 | Duration | 129.9 s | 105.7 s | **-18.6%** |
 
 The Codex result is mixed and is reported as such: Pathrule used fewer tokens,
@@ -65,10 +72,10 @@ by 1.6 percentage points.
 
 ### Combined view
 
-| Client | Quality result | Non-cached | Total footprint | Duration |
+| Client | Quality result | Total footprint | Non-cached | Duration |
 | --- | --- | ---: | ---: | ---: |
-| Claude Opus 4.8 | Facts and actions unchanged | **-48.0%** | **-52.5%** | +0.2% |
-| OpenAI Codex GPT-5.5 | Facts -1.6 pp; actions +33.3 pp | **-8.6%** | **-41.4%** | **-18.6%** |
+| Claude Opus 4.8 | Facts and actions unchanged | **-52.5%** | **-48.0%** | +0.2% |
+| OpenAI Codex GPT-5.5 | Facts -1.6 pp; actions +33.3 pp | **-41.4%** | **-8.6%** | **-18.6%** |
 
 No forbidden fact or action hit occurred. Every unknown-fact prompt was answered
 with the expected abstention, and every response used the requested language.
